@@ -13,7 +13,7 @@ AI 코딩 에이전트를 위한 오래가는 프로젝트 컨텍스트. 결정�
 
 <p align="center">
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a>
-  <a href="https://github.com/Jeis-Jw/whyve/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/Jeis-Jw/whyve/actions/workflows/test.yml/badge.svg"></a>
+  <a href="https://github.com/swimit-io/whyve/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/swimit-io/whyve/actions/workflows/test.yml/badge.svg"></a>
   <img alt="Node.js 20.20 or newer" src="https://img.shields.io/badge/node-%3E%3D20.20-informational">
 </p>
 
@@ -25,11 +25,11 @@ Whyve는 Codex와 Claude Code에 설치하는 플러그인입니다. Node.js 20.
 
 ```bash
 # Codex
-codex plugin marketplace add https://github.com/Jeis-Jw/whyve.git
+codex plugin marketplace add https://github.com/swimit-io/whyve.git
 codex plugin add whyve@whyve
 
 # Claude Code
-claude plugin marketplace add https://github.com/Jeis-Jw/whyve.git --scope user
+claude plugin marketplace add https://github.com/swimit-io/whyve.git --scope user
 claude plugin install whyve@whyve --scope user
 ```
 
@@ -118,7 +118,7 @@ Whyve가 기록을 확인해 주고, 저장된 이유를 꺼내고, 새 아이�
 
 ## 어디까지 확인했나요
 
-저장소의 [테스트](https://github.com/Jeis-Jw/whyve/tree/main/tests/node)는 결정과 이유가 기록되는지, 결정을 바꿀 때 이전 이유가 남는지, 현재 기록과 지난 기록을 읽을 수 있는지를 확인합니다. 잘 관리한 Markdown 메모나 ADR보다 낫다는 점은 입증하지 못했고, 토큰이나 비용이 줄어드는지도 재지 않았습니다. 도움이 되는지는 위의 두 세션 예제로 확인하는 것이 가장 빠릅니다.
+저장소의 [테스트](https://github.com/swimit-io/whyve/tree/main/tests/node)는 결정과 이유가 기록되는지, 결정을 바꿀 때 이전 이유가 남는지, 현재 기록과 지난 기록을 읽을 수 있는지를 확인합니다. 잘 관리한 Markdown 메모나 ADR보다 낫다는 점은 입증하지 못했고, 토큰이나 비용이 줄어드는지도 재지 않았습니다. 도움이 되는지는 위의 두 세션 예제로 확인하는 것이 가장 빠릅니다.
 
 ## Whyve로 만든 제품
 
@@ -130,7 +130,7 @@ Whyve가 기록을 확인해 주고, 저장된 이유를 꺼내고, 새 아이�
 
 **Whyve Cloud**: 여러 기기에서 같은 컨텍스트를, Git 없이. 준비하고 있습니다. Whyve 자체는 지금처럼 오픈소스이고 로컬에서 동작합니다.
 
-Whyve는 Apache-2.0 오픈소스이며 한 사람이 만들고 유지합니다. 버그 신고는 [이슈](https://github.com/Jeis-Jw/whyve/issues)로 받고, 풀 리퀘스트는 지금은 받지 않습니다. 보안 문제는 [SECURITY.md](SECURITY.md)를 보세요.
+Whyve는 Apache-2.0 오픈소스이며 한 사람이 만들고 유지합니다. 버그 신고는 [이슈](https://github.com/swimit-io/whyve/issues)로 받고, 풀 리퀘스트는 지금은 받지 않습니다. 보안 문제는 [SECURITY.md](SECURITY.md)를 보세요.
 
 ## 개발자용 문서
 

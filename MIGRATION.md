@@ -102,7 +102,7 @@ and their `context-*` schemas do not change.
    `Bobbin`, `BobbinOptions`, `BobbinError`, `toBobbinError` and `BOBBIN_*`
    environment variables.
 3. Remove the `bobbin@bobbin` plugin and marketplace, then add
-   `https://github.com/Jeis-Jw/whyve.git` and install `whyve@whyve`. Skills are
+   `https://github.com/swimit-io/whyve.git` and install `whyve@whyve`. Skills are
    now `whyve:*`. Re-run `$whyve:init` only when you want to change settings.
 4. Pending previews and receipts (`bobbin-preview/v1`, `bobbin-receipt/v1`) are
    not accepted; recreate them after the migration.

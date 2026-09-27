@@ -2,9 +2,9 @@
 
 ## Reporting a vulnerability
 
-Please report suspected vulnerabilities through [GitHub private vulnerability reporting](https://github.com/Jeis-Jw/whyve/security/advisories/new). Do not disclose exploit details, private repository paths, credentials, pending receipts, or user context in a public issue.
+Please report suspected vulnerabilities through [GitHub private vulnerability reporting](https://github.com/swimit-io/whyve/security/advisories/new). Do not disclose exploit details, private repository paths, credentials, pending receipts, or user context in a public issue.
 
-Whyve is maintained in the `Jeis-Jw/whyve` repository.
+Whyve is maintained in the `swimit-io/whyve` repository.
 
 Security-sensitive areas include vault path containment, approval and lifecycle binding, runtime identity, CAS and lock enforcement, atomic writes and rollback, symlink handling, and protection against applying altered or replayed frozen material.
 

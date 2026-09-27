@@ -9,7 +9,7 @@ Durable project context for AI coding agents: decisions and their reasons, kept 
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a> <a href="https://github.com/Jeis-Jw/whyve/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/Jeis-Jw/whyve/actions/workflows/test.yml/badge.svg"></a> <img alt="Node.js 20.20 or newer" src="https://img.shields.io/badge/node-%3E%3D20.20-informational">
+  <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a> <a href="https://github.com/swimit-io/whyve/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/swimit-io/whyve/actions/workflows/test.yml/badge.svg"></a> <img alt="Node.js 20.20 or newer" src="https://img.shields.io/badge/node-%3E%3D20.20-informational">
 </p>
 
 <p align="center"><a href="README.ko.md">한국어</a></p>
@@ -20,11 +20,11 @@ Whyve is a plugin for Codex and Claude Code. It needs Node.js 20.20.0 or newer.
 
 ```bash
 # Codex
-codex plugin marketplace add https://github.com/Jeis-Jw/whyve.git
+codex plugin marketplace add https://github.com/swimit-io/whyve.git
 codex plugin add whyve@whyve
 
 # Claude Code
-claude plugin marketplace add https://github.com/Jeis-Jw/whyve.git --scope user
+claude plugin marketplace add https://github.com/swimit-io/whyve.git --scope user
 claude plugin install whyve@whyve --scope user
 ```
 
@@ -113,7 +113,7 @@ You should see Whyve confirm the record, then recall the stored reason, then com
 
 ## What has been validated
 
-The repository's [tests](https://github.com/Jeis-Jw/whyve/tree/main/tests/node) check that decisions and reasons are recorded, that earlier reasons are kept when a decision is replaced, and that current and past records can be read. We have not shown that Whyve beats well-kept Markdown notes or ADRs, and we have not measured token or cost savings. The two-session example above is the quickest way to see whether it helps your project.
+The repository's [tests](https://github.com/swimit-io/whyve/tree/main/tests/node) check that decisions and reasons are recorded, that earlier reasons are kept when a decision is replaced, and that current and past records can be read. We have not shown that Whyve beats well-kept Markdown notes or ADRs, and we have not measured token or cost savings. The two-session example above is the quickest way to see whether it helps your project.
 
 ## Built with Whyve
 
@@ -125,7 +125,7 @@ The repository's [tests](https://github.com/Jeis-Jw/whyve/tree/main/tests/node) 
 
 **Whyve Cloud**: the same context across your devices, without Git. In preparation. Whyve itself stays open source and local.
 
-Whyve is open source under Apache-2.0 and is built and maintained by one person. Bug reports are welcome as [issues](https://github.com/Jeis-Jw/whyve/issues); pull requests aren't being taken right now. Security issues: see [SECURITY.md](SECURITY.md).
+Whyve is open source under Apache-2.0 and is built and maintained by one person. Bug reports are welcome as [issues](https://github.com/swimit-io/whyve/issues); pull requests aren't being taken right now. Security issues: see [SECURITY.md](SECURITY.md).
 
 ## For developers
 

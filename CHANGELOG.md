@@ -61,7 +61,7 @@ Breaking. The product version restarts at 0.3.0; the protocol is
 - Rename the package to `@whyve/context`, the CLI to `whyve`, the plugin and
   marketplace to `whyve` (`whyve@whyve`, skills `whyve:*`), the API to `Whyve`,
   `WhyveOptions`, `WhyveError`, `createWhyve` and `toWhyveError`, and the
-  repository to `Jeis-Jw/whyve`. No alias exports remain.
+  repository to `swimit-io/whyve`. No alias exports remain.
 - Read project settings only from `.whyve/config.json`; use `.whyve-runtime/`,
   `whyve-*` schema IDs and `WHYVE_*` environment variables. `.bobbin` is not read.
 - Add `whyve migrate-project PATH [--dry-run]` to convert a Bobbin 2.x project in
