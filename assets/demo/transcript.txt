@@ -1,0 +1,48 @@
+# Whyve two-session demo transcript (real output, not edited)
+# recorded 2026-09-26T07:13:38Z | 2.1.280 (Claude Code) | whyve 2.4.0 | node v24.11.1
+# project: fresh git repo + `whyve init` (Decision, explicit)
+=== scene 1 | session 22f79925-b0fb-44ad-81ab-6cf2da0ed3f5 | model claude-haiku-4-5-20251001,claude-opus-5-5[1m] | 19188 ms
+$ claude -p "I decided this trial will support CSV only and leave Excel for later. I want to validate the first-use flow quickly. Remember this decision."
+I saved this as a project decision: the trial will support CSV only, and Excel is left for later. The reason is to validate the first-use flow quickly. There was no earlier decision on file formats, so nothing conflicts with it.
+
+- **File:** `context/decision/Trial-supports-CSV-only-Excel-deferred.md`
+- **Scope:** `trial-importer`, with the decision key `trial-import-file-formats`
+
+You didn't say when to come back to Excel support, so I didn't record a condition for that. If you want one, such as "once the first-use flow is validated," tell me and I'll add it.
+=== scene 1b | shell
+$ ls context/decision
+Trial-supports-CSV-only-Excel-deferred.md
+decision.index.md
+=== scene 2 | session 11976f8b-2012-499a-a5ef-ed420bd39293 | model claude-haiku-4-5-20251001,claude-opus-5-5[1m] | 12343 ms
+$ claude -p "Why did we postpone Excel support?"
+Excel support was postponed to **validate the first-use flow quickly**.
+
+The current decision for `trial-importer` (`context/decision/Trial-supports-CSV-only-Excel-deferred.md`) says:
+
+- **Decision:** This trial supports CSV only. Excel support is left for later.
+- **Rationale:** Validate the first-use flow quickly.
+- **Rejected alternatives:** Supporting Excel in this trial (deferred to later).
+
+The record doesn't set a condition for when to revisit Excel. It is deferred, not ruled out, so bringing it back is still an open choice for later.
+=== scene 3 | session 11976f8b-2012-499a-a5ef-ed420bd39293 | model claude-haiku-4-5-20251001,claude-opus-5-5[1m] | 8794 ms
+$ claude -p --continue "What about including Excel in this trial too? I haven't decided to change the decision yet."
+This would conflict with the current decision for `trial-importer` (`trial-import-file-formats`):
+
+- **Decision:** "This trial supports CSV only. Excel support is left for later."
+- **Rationale:** "Validate the first-use flow quickly."
+- **Rejected alternatives:** "Supporting Excel in this trial (deferred to later)."
+
+The record has no condition for revisiting it, so nothing in it signals that now is the time. Since you haven't decided, I'm treating this as discussion only. I won't change any code or the decision record.
+
+**Reasons to keep CSV only:**
+- It still fits the stated goal. The first-use flow gets validated with fewer moving parts.
+- Excel adds work that isn't about the flow itself: sheets, merged cells, dates stored as numbers, formulas, encoding quirks, and a new parsing library.
+- If the trial goes badly, you'll know the cause is the flow, not the file parsing.
+
+**Reasons to add Excel now:**
+- If most target users keep their data in `.xlsx`, a CSV-only trial may measure people giving up at the export step, not the flow itself.
+- If the import pipeline is already format-neutral, adding Excel later may cost about the same as adding it now.
+
+**A middle option:** keep CSV only, but track how often users try to upload `.xlsx` or ask for it. That gives you evidence for when to revisit without changing scope.
+
+When you're ready to decide: **keep** CSV only for this trial, or **supersede** the decision and include Excel? If you choose supersede, I'll update the decision record and then start the implementation work.

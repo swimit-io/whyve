@@ -1,0 +1,27 @@
+{
+  "name": "whyve",
+  "owner": {
+    "name": "Jinwuk-Lee",
+    "url": "https://github.com/Jeis-Jw"
+  },
+  "metadata": {
+    "description": "Keep the thread: durable project context with project-selected features and recording policies.",
+    "release_set": {
+      "schema": "context-plugin-release-set/v1",
+      "version": "0.3.0",
+      "runtime_compatibility": "single-package",
+      "automatic_update": false,
+      "members": {
+        "whyve": "0.3.0"
+      }
+    }
+  },
+  "plugins": [
+    {
+      "name": "whyve",
+      "version": "0.3.0",
+      "description": "Keep the thread: durable project context with project-selected features and recording policies.",
+      "source": "./plugins/whyve"
+    }
+  ]
+}

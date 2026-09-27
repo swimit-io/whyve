@@ -1,0 +1,33 @@
+{
+  "name": "whyve",
+  "interface": {
+    "displayName": "Whyve"
+  },
+  "metadata": {
+    "release_set": {
+      "schema": "context-plugin-release-set/v1",
+      "version": "0.3.0",
+      "runtime_compatibility": "single-package",
+      "automatic_update": false,
+      "members": {
+        "whyve": "0.3.0"
+      }
+    }
+  },
+  "plugins": [
+    {
+      "name": "whyve",
+      "version": "0.3.0",
+      "description": "Keep the thread: durable project context with project-selected features and recording policies.",
+      "source": {
+        "source": "local",
+        "path": "./plugins/whyve"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

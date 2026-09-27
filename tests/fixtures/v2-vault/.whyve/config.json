@@ -1,0 +1,14 @@
+{
+  "schema": "whyve-project/v1",
+  "features": [
+    "decision",
+    "assumption",
+    "term",
+    "intent",
+    "document"
+  ],
+  "approval": {
+    "mode": "adaptive"
+  },
+  "vault": "."
+}

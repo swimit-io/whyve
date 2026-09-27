@@ -1,0 +1,590 @@
+{
+ "schema": "whyve-record-model/v3",
+ "protocol": "context-common/v3",
+ "area_index_schema": "context-area-index/v2",
+ "root_index_schema": "context-root-index/v2",
+ "sources_section": {
+  "name": "Sources",
+  "alias": "출처"
+ },
+ "common": [
+  {
+   "key": "title",
+   "type": "string",
+   "class": "H",
+   "max": 120,
+   "rule": "One non-empty line."
+  },
+  {
+   "key": "summary",
+   "type": "string",
+   "class": "S",
+   "max": 280,
+   "rule": "One line. When omitted the core derives a deterministic excerpt of the primary section and adds summary_derived."
+  },
+  {
+   "key": "kind",
+   "type": "kind",
+   "class": "H",
+   "rule": "One of the kinds in section 4."
+  },
+  {
+   "key": "scope",
+   "type": "scope",
+   "class": "H",
+   "max": 160,
+   "rule": "Canonical scope, at most 8 segments of 40 codepoints. Every kind has a scope."
+  },
+  {
+   "key": "key",
+   "type": "key",
+   "class": "C",
+   "max": 80,
+   "rule": "Canonical key. Required when the kind declares a key."
+  },
+  {
+   "key": "keywords",
+   "type": "string_list",
+   "class": "S",
+   "max_items": 12,
+   "max_item_chars": 40,
+   "rule": "Exact-item filter; projected to the area index."
+  },
+  {
+   "key": "tags",
+   "type": "string_list",
+   "class": "S",
+   "max_items": 12,
+   "max_item_chars": 40,
+   "rule": "Header search only."
+  },
+  {
+   "key": "created_at",
+   "type": "timestamp",
+   "class": "H",
+   "rule": "Set by the core; immutable."
+  },
+  {
+   "key": "updated_at",
+   "type": "timestamp",
+   "class": "D",
+   "rule": "Set by the core when a record changes; never earlier than created_at."
+  },
+  {
+   "key": "quality_flags",
+   "type": "string_list",
+   "class": "D",
+   "max_items": 32,
+   "max_item_chars": 60,
+   "rule": "Diagnostic codes. They never change authority or approval."
+  },
+  {
+   "key": "id",
+   "type": "id",
+   "class": "H",
+   "rule": "ctx_ plus lowercase UUIDv4 hex; immutable."
+  },
+  {
+   "key": "schema",
+   "type": "schema",
+   "class": "H",
+   "rule": "context-<kind>/v2."
+  },
+  {
+   "key": "state",
+   "type": "state",
+   "class": "H",
+   "rule": "current or history; must match the directory."
+  },
+  {
+   "key": "authorization_source",
+   "type": "authorization",
+   "class": "H",
+   "rule": "user or policy. legacy only for migrated records."
+  },
+  {
+   "key": "retired_at",
+   "type": "timestamp",
+   "class": "C",
+   "rule": "Required for history records."
+  },
+  {
+   "key": "lifecycle_reason",
+   "type": "reason",
+   "class": "C",
+   "rule": "Required for history records; allowed values are per kind."
+  },
+  {
+   "key": "section_delimiter",
+   "type": "delimiter",
+   "class": "D",
+   "max": 40,
+   "rule": "Present only when a section is framed."
+  }
+ ],
+ "kinds": {
+  "snapshot": {
+   "schema": "context-snapshot/v2",
+   "authority": "staging",
+   "key": "none",
+   "slot": "none",
+   "update": "content",
+   "filename": "dated",
+   "retire": [
+    "superseded"
+   ],
+   "summary": "Session handoff staging.",
+   "headers": [
+    {
+     "key": "anchors",
+     "type": "id_list",
+     "class": "S",
+     "max": 12,
+     "rule": "Records this memo is anchored to."
+    }
+   ],
+   "sections": [
+    {
+     "name": "Current context",
+     "alias": "현재 맥락",
+     "field": "current_context",
+     "required": true,
+     "list": false,
+     "flag": null
+    },
+    {
+     "name": "Open items",
+     "alias": "열린 항목",
+     "field": "open_items",
+     "required": false,
+     "list": true,
+     "flag": null
+    },
+    {
+     "name": "Next steps",
+     "alias": "다음 단계",
+     "field": "next_steps",
+     "required": false,
+     "list": true,
+     "flag": null
+    },
+    {
+     "name": "Decided",
+     "alias": "정해진 것",
+     "field": "decided",
+     "required": false,
+     "list": true,
+     "flag": null
+    },
+    {
+     "name": "References",
+     "alias": "참조",
+     "field": "references",
+     "required": false,
+     "list": true,
+     "flag": null
+    },
+    {
+     "name": "Capture candidates",
+     "alias": "capture 후보",
+     "field": "capture_candidates",
+     "required": false,
+     "list": true,
+     "flag": null
+    }
+   ]
+  },
+  "observation": {
+   "schema": "context-observation/v2",
+   "authority": "evidence",
+   "key": "none",
+   "slot": "none",
+   "update": "supplement",
+   "filename": "dated",
+   "retire": [
+    "superseded",
+    "invalidated"
+   ],
+   "summary": "Non-authoritative findings and evidence.",
+   "headers": [
+    {
+     "key": "verified_at",
+     "type": "timestamp",
+     "class": "S",
+     "rule": "Last verification time."
+    },
+    {
+     "key": "kind_hint",
+     "type": "enum",
+     "values": [
+      "decision"
+     ],
+     "class": "S",
+     "rule": "A decision-like fallback that may later be imported as a decision."
+    }
+   ],
+   "sections": [
+    {
+     "name": "Observation",
+     "alias": "관찰",
+     "field": "observation",
+     "required": true,
+     "list": false,
+     "flag": null
+    },
+    {
+     "name": "Evidence",
+     "alias": "근거",
+     "field": "evidence",
+     "required": false,
+     "list": true,
+     "flag": "evidence_missing"
+    },
+    {
+     "name": "Impact",
+     "alias": "영향",
+     "field": "impact",
+     "required": false,
+     "list": false,
+     "flag": null
+    },
+    {
+     "name": "Current handling",
+     "alias": "현재 처리",
+     "field": "current_handling",
+     "required": false,
+     "list": false,
+     "flag": null
+    },
+    {
+     "name": "Follow-up conditions",
+     "alias": "후속 조건",
+     "field": "followup_conditions",
+     "required": false,
+     "list": true,
+     "flag": null
+    }
+   ]
+  },
+  "decision": {
+   "schema": "context-decision/v2",
+   "authority": "authoritative",
+   "key": "required",
+   "slot": "decision-overlap",
+   "update": "supplement",
+   "filename": "dated",
+   "retire": [
+    "superseded",
+    "withdrawn"
+   ],
+   "summary": "Decisions, rationale, rejected alternatives and current validity.",
+   "headers": [
+    {
+     "key": "revisit_on",
+     "type": "date",
+     "class": "S",
+     "rule": "Date to reassess."
+    }
+   ],
+   "sections": [
+    {
+     "name": "Decision",
+     "alias": "결정",
+     "field": "decision",
+     "required": true,
+     "list": false,
+     "flag": null
+    },
+    {
+     "name": "Rationale",
+     "alias": "취지",
+     "field": "rationale",
+     "required": false,
+     "list": false,
+     "flag": "rationale_missing"
+    },
+    {
+     "name": "Rejected alternatives",
+     "alias": "반려대안",
+     "field": "rejected_alternatives",
+     "required": false,
+     "list": true,
+     "flag": "alternatives_missing"
+    },
+    {
+     "name": "Evidence and constraints",
+     "alias": "근거와 제약",
+     "field": "constraints",
+     "required": false,
+     "list": true,
+     "flag": "evidence_missing"
+    },
+    {
+     "name": "Trade-offs",
+     "alias": "트레이드오프",
+     "field": "tradeoffs",
+     "required": false,
+     "list": true,
+     "flag": null
+    },
+    {
+     "name": "Revisit conditions",
+     "alias": "재평가 조건",
+     "field": "revisit_when",
+     "required": false,
+     "list": true,
+     "flag": null
+    }
+   ]
+  },
+  "intent": {
+   "schema": "context-intent/v2",
+   "authority": "authoritative",
+   "key": "required",
+   "slot": "exact-scope-key",
+   "update": "supplement",
+   "filename": "dated",
+   "retire": [
+    "superseded"
+   ],
+   "summary": "Desired project directions that can guide later decisions.",
+   "headers": [],
+   "sections": [
+    {
+     "name": "Intent",
+     "alias": "의도",
+     "field": "intent",
+     "required": true,
+     "list": false,
+     "flag": null
+    },
+    {
+     "name": "Success criteria",
+     "alias": "성공 기준",
+     "field": "success_criteria",
+     "required": false,
+     "list": true,
+     "flag": "success_criteria_missing"
+    },
+    {
+     "name": "Constraints",
+     "alias": "제약",
+     "field": "constraints",
+     "required": false,
+     "list": true,
+     "flag": null
+    },
+    {
+     "name": "Revisit conditions",
+     "alias": "재검토 조건",
+     "field": "revisit_conditions",
+     "required": false,
+     "list": true,
+     "flag": null
+    }
+   ]
+  },
+  "document": {
+   "schema": "context-document/v2",
+   "authority": "authoritative",
+   "key": "required",
+   "slot": "exact-scope-key",
+   "update": "content",
+   "filename": "plain",
+   "retire": [
+    "superseded"
+   ],
+   "summary": "Project-scoped living documents with stable slots.",
+   "headers": [],
+   "sections": [
+    {
+     "name": "Content",
+     "alias": "내용",
+     "field": "content",
+     "required": true,
+     "list": false,
+     "flag": null
+    }
+   ]
+  },
+  "assumption": {
+   "schema": "context-assumption/v2",
+   "authority": "provisional",
+   "key": "none",
+   "slot": "none",
+   "update": "supplement",
+   "filename": "dated",
+   "retire": [
+    "superseded",
+    "confirmed",
+    "refuted"
+   ],
+   "summary": "Working assumptions with confirmation and refutation conditions.",
+   "headers": [
+    {
+     "key": "assumption_status",
+     "type": "enum",
+     "values": [
+      "unverified",
+      "confirmed",
+      "refuted"
+     ],
+     "class": "D",
+     "rule": "unverified while current."
+    }
+   ],
+   "sections": [
+    {
+     "name": "Assumption",
+     "alias": "가정",
+     "field": "assumption",
+     "required": true,
+     "list": false,
+     "flag": null
+    },
+    {
+     "name": "Basis",
+     "alias": "근거",
+     "field": "basis",
+     "required": false,
+     "list": true,
+     "flag": "evidence_missing"
+    },
+    {
+     "name": "Confirmation conditions",
+     "alias": "확정 조건",
+     "field": "confirm_conditions",
+     "required": false,
+     "list": true,
+     "flag": null
+    },
+    {
+     "name": "Refutation conditions",
+     "alias": "반증 조건",
+     "field": "refute_conditions",
+     "required": false,
+     "list": true,
+     "flag": null
+    }
+   ]
+  },
+  "term": {
+   "schema": "context-term/v2",
+   "authority": "definitional",
+   "key": "derived",
+   "slot": "term-overlap",
+   "update": "supplement",
+   "filename": "plain",
+   "retire": [
+    "superseded",
+    "deprecated"
+   ],
+   "summary": "Project-specific terms and their definitions.",
+   "headers": [
+    {
+     "key": "term",
+     "type": "string",
+     "class": "H",
+     "max": 120,
+     "rule": "The term; the key is derived from it."
+    },
+    {
+     "key": "aliases",
+     "type": "string_list",
+     "class": "S",
+     "max_items": 12,
+     "max_item_chars": 120,
+     "rule": "Other names for the same term."
+    },
+    {
+     "key": "deprecated_terms",
+     "type": "string_list",
+     "class": "S",
+     "max_items": 12,
+     "max_item_chars": 120,
+     "rule": "Names that must not be used."
+    },
+    {
+     "key": "project_signal",
+     "type": "enum",
+     "values": [
+      "project-specific",
+      "project-special-meaning"
+     ],
+     "class": "S",
+     "rule": "Missing value adds project_signal_missing."
+    }
+   ],
+   "sections": [
+    {
+     "name": "Definition",
+     "alias": "정의",
+     "field": "definition",
+     "required": true,
+     "list": false,
+     "flag": null
+    }
+   ]
+  },
+  "archive": {
+   "schema": "context-archive/v2",
+   "authority": "evidence",
+   "key": "none",
+   "slot": "none",
+   "update": "metadata",
+   "filename": "dated",
+   "retire": [
+    "superseded"
+   ],
+   "summary": "Immutable source material adopted as evidence.",
+   "headers": [
+    {
+     "key": "original_format",
+     "type": "string",
+     "class": "S",
+     "max": 80,
+     "rule": "Media type or format label of the original."
+    },
+    {
+     "key": "content_digest",
+     "type": "digest",
+     "class": "D",
+     "rule": "SHA-256 of the exact Content bytes."
+    }
+   ],
+   "sections": [
+    {
+     "name": "Content",
+     "alias": "원문",
+     "field": "content",
+     "required": true,
+     "list": false,
+     "flag": null
+    }
+   ]
+  }
+ },
+ "limits": {
+  "body_bytes": 262144,
+  "archive_bytes": 524288,
+  "header_bytes": 16384,
+  "custom_header_keys": 32,
+  "custom_header_bytes": 8192,
+  "custom_value_bytes": 512,
+  "custom_list_items": 16,
+  "source_entries": 100,
+  "source_ref_codepoints": 500,
+  "source_note_codepoints": 500,
+  "filename_bytes": 180,
+  "list_default": 50,
+  "list_max": 100,
+  "list_page_bytes": 262144,
+  "read_default_bytes": 32768,
+  "read_max_bytes": 262144,
+  "header_scan_default": 100,
+  "header_scan_max": 500,
+  "request_bytes": 2097152,
+  "transaction_bytes": 8388608,
+  "regex_bytes": 256
+ }
+}

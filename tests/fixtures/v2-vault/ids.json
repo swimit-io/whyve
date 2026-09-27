@@ -1,0 +1,12 @@
+{
+ "intent": "ctx_561bb11574164b8095aa6e3a8f0471aa",
+ "dec": "ctx_ea3bf189aafe490ebec19d808a27c382",
+ "obs": "ctx_4550ade0039a45d7b6843a039ce07f3e",
+ "snap": "ctx_9446c6c8343d4d1a8dcd30ed57902bac",
+ "arch": "ctx_569c8a8c719f4c79aefedbb53cd8a6fb",
+ "asm": "ctx_b3841d245d324b4dba1fe6fea3f6ef1d",
+ "term": "ctx_ccfe9a1f854148b3bacfd345e7d2ee5d",
+ "doc": "ctx_62d004084e204352a69c055b4dd46ab6",
+ "dec2": "ctx_5da41fea9be24469b0202e8c64b1ec96",
+ "obs2": "ctx_f46abf88891f4f3d88d7afd8af37e92c"
+}

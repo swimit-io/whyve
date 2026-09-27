@@ -1,0 +1,9 @@
+{
+  "name": "whyve",
+  "version": "0.3.0",
+  "description": "Keep the thread: durable project context with project-selected features and recording policies.",
+  "author": {
+    "name": "Jinwuk-Lee",
+    "url": "https://github.com/Jeis-Jw"
+  }
+}

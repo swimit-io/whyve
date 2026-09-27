@@ -1,0 +1,599 @@
+{
+    "note": "Whyve 0.3 keeps only what reads context-common/v2 records (legacy compatibility and migration) plus the managed guidance blocks.",
+    "common_keys": [
+        "schema",
+        "id",
+        "title",
+        "summary",
+        "created_at",
+        "updated_at",
+        "captured_from",
+        "source_refs",
+        "tags",
+        "search_terms"
+    ],
+    "additive_keys": {
+        "context-snapshot/v1": [
+            "anchors",
+            "section_delimiter"
+        ],
+        "context-observation/v1": [
+            "kind_hint",
+            "verified_at",
+            "affects_paths",
+            "relations",
+            "supersedes",
+            "superseded_by",
+            "retired_at",
+            "retired_reason",
+            "retirement_note"
+        ],
+        "context-archive/v1": [],
+        "context-decision/v1": [
+            "scope",
+            "decision_key",
+            "revisit_when",
+            "revisit_on",
+            "relations",
+            "supersedes",
+            "superseded_by",
+            "retired_at",
+            "retired_reason",
+            "retirement_note"
+        ]
+    },
+    "sections": {
+        "context-snapshot/v1": [
+            [
+                "Current context",
+                "Open items",
+                "Next steps",
+                "Decided",
+                "References",
+                "Capture candidates"
+            ],
+            [
+                "Current context",
+                "Open items",
+                "Next steps"
+            ]
+        ],
+        "context-observation/v1": [
+            [
+                "Observation",
+                "Evidence",
+                "Impact",
+                "Current handling",
+                "Follow-up conditions"
+            ],
+            [
+                "Observation",
+                "Evidence"
+            ]
+        ],
+        "context-archive/v1": [
+            [
+                "Content"
+            ],
+            [
+                "Content"
+            ]
+        ],
+        "context-decision/v1": [
+            [
+                "Decision",
+                "Rationale",
+                "Rejected alternatives",
+                "Evidence and constraints",
+                "Trade-offs",
+                "Revisit conditions"
+            ],
+            [
+                "Decision",
+                "Rationale",
+                "Rejected alternatives"
+            ]
+        ]
+    },
+    "aliases": {
+        "context-snapshot/v1": {
+            "현재 맥락": "Current context",
+            "열린 항목": "Open items",
+            "다음 단계": "Next steps",
+            "정해진 것": "Decided",
+            "참조": "References",
+            "capture 후보": "Capture candidates"
+        },
+        "context-observation/v1": {
+            "관찰": "Observation",
+            "근거": "Evidence",
+            "영향": "Impact",
+            "현재 처리": "Current handling",
+            "후속 조건": "Follow-up conditions"
+        },
+        "context-decision/v1": {
+            "결정": "Decision",
+            "취지": "Rationale",
+            "반려대안": "Rejected alternatives",
+            "근거와 제약": "Evidence and constraints",
+            "트레이드오프": "Trade-offs",
+            "재평가 조건": "Revisit conditions"
+        },
+        "context-assumption/v1": {
+            "가정": "Assumption",
+            "근거": "Basis",
+            "확정 조건": "Confirmation conditions",
+            "반증 조건": "Refutation conditions"
+        },
+        "context-term/v1": {
+            "정의": "Definition"
+        }
+    },
+    "capabilities": {
+        "snapshot": {
+            "storage_limits": {
+                "max_input_bytes": 262144,
+                "measurement": "snapshot_payload_utf8",
+                "max_candidate_bytes": 540672,
+                "max_transport_bytes": 1048576,
+                "content_newlines": "LF"
+            }
+        },
+        "observation": {},
+        "archive": {},
+        "decision": {},
+        "assumption": {},
+        "term": {},
+        "intent": {},
+        "document": {}
+    },
+    "owners": {
+        "decision": {
+            "descriptor": {
+                "schema": "context-owner-descriptor/v1",
+                "owner": "context-decision",
+                "kind": "decision",
+                "artifact_schema": "context-decision/v1",
+                "authority": "authoritative"
+            }
+        },
+        "assumption": {
+            "descriptor": {
+                "schema": "context-owner-descriptor/v2",
+                "owner": "context-assumption",
+                "kind": "assumption",
+                "artifact_schema": "context-assumption/v1",
+                "authority": "provisional",
+                "structural_profile": {
+                    "schema": "context-structural-profile/v1",
+                    "fields": {
+                        "scope": {
+                            "type": "string",
+                            "required": true,
+                            "min_chars": 1,
+                            "max_chars": 160
+                        },
+                        "impacted_decisions": {
+                            "type": "context_id_list",
+                            "required": false,
+                            "min_items": 0,
+                            "max_items": 12
+                        },
+                        "retired_at": {
+                            "type": "timestamp",
+                            "required": false
+                        },
+                        "retired_reason": {
+                            "type": "enum",
+                            "required": false,
+                            "values": [
+                                "confirmed",
+                                "refuted",
+                                "superseded"
+                            ]
+                        },
+                        "evidence_refs": {
+                            "type": "string_list",
+                            "required": false,
+                            "min_items": 0,
+                            "max_items": 12,
+                            "max_item_chars": 500
+                        },
+                        "refutation_reason": {
+                            "type": "string",
+                            "required": false,
+                            "min_chars": 1,
+                            "max_chars": 800
+                        },
+                        "superseded_by": {
+                            "type": "context_id",
+                            "required": false
+                        },
+                        "supersedes": {
+                            "type": "context_id_list",
+                            "required": false,
+                            "min_items": 0,
+                            "max_items": 12
+                        }
+                    },
+                    "sections": {
+                        "ordered": [
+                            "가정",
+                            "근거",
+                            "확정 조건",
+                            "반증 조건"
+                        ],
+                        "required": [
+                            "가정",
+                            "근거"
+                        ],
+                        "primary": "가정"
+                    },
+                    "index_projection": [
+                        "scope"
+                    ],
+                    "lifecycle": {
+                        "allowed_topologies": [
+                            "create_current",
+                            "replace_same_state",
+                            "retire_current",
+                            "supersede_current"
+                        ],
+                        "reasons": {
+                            "confirmed": {
+                                "topology": "retire_current",
+                                "required_fields": [
+                                    "retired_at",
+                                    "retired_reason",
+                                    "evidence_refs"
+                                ],
+                                "forbidden_fields": [
+                                    "superseded_by",
+                                    "refutation_reason"
+                                ],
+                                "successor": "forbidden",
+                                "references": []
+                            },
+                            "refuted": {
+                                "topology": "retire_current",
+                                "required_fields": [
+                                    "retired_at",
+                                    "retired_reason",
+                                    "evidence_refs",
+                                    "refutation_reason",
+                                    "impacted_decisions"
+                                ],
+                                "forbidden_fields": [
+                                    "superseded_by"
+                                ],
+                                "successor": "forbidden",
+                                "references": []
+                            },
+                            "superseded": {
+                                "topology": "supersede_current",
+                                "required_fields": [
+                                    "retired_at",
+                                    "retired_reason",
+                                    "superseded_by"
+                                ],
+                                "forbidden_fields": [
+                                    "evidence_refs",
+                                    "refutation_reason"
+                                ],
+                                "successor": "required",
+                                "references": [
+                                    {
+                                        "location": "predecessor",
+                                        "field": "superseded_by",
+                                        "target": "successor",
+                                        "match": "equals"
+                                    },
+                                    {
+                                        "location": "successor",
+                                        "field": "supersedes",
+                                        "target": "predecessor",
+                                        "match": "contains"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "term": {
+            "descriptor": {
+                "schema": "context-owner-descriptor/v2",
+                "owner": "context-term",
+                "kind": "term",
+                "artifact_schema": "context-term/v1",
+                "authority": "authoritative",
+                "structural_profile": {
+                    "schema": "context-structural-profile/v1",
+                    "fields": {
+                        "scope": {
+                            "type": "string",
+                            "required": true,
+                            "min_chars": 1,
+                            "max_chars": 160
+                        },
+                        "term": {
+                            "type": "string",
+                            "required": true,
+                            "min_chars": 1,
+                            "max_chars": 120
+                        },
+                        "term_key": {
+                            "type": "string",
+                            "required": true,
+                            "min_chars": 1,
+                            "max_chars": 80
+                        },
+                        "aliases": {
+                            "type": "string_list",
+                            "required": false,
+                            "min_items": 0,
+                            "max_items": 12,
+                            "max_item_chars": 120
+                        },
+                        "deprecated_terms": {
+                            "type": "string_list",
+                            "required": false,
+                            "min_items": 0,
+                            "max_items": 12,
+                            "max_item_chars": 120
+                        },
+                        "related": {
+                            "type": "string_list",
+                            "required": false,
+                            "min_items": 0,
+                            "max_items": 12,
+                            "max_item_chars": 120
+                        },
+                        "retired_at": {
+                            "type": "timestamp",
+                            "required": false
+                        },
+                        "retired_reason": {
+                            "type": "enum",
+                            "required": false,
+                            "values": [
+                                "deprecated",
+                                "superseded"
+                            ]
+                        },
+                        "deprecation_reason": {
+                            "type": "string",
+                            "required": false,
+                            "min_chars": 1,
+                            "max_chars": 800
+                        },
+                        "replacement_term": {
+                            "type": "string",
+                            "required": false,
+                            "min_chars": 1,
+                            "max_chars": 120
+                        },
+                        "superseded_by": {
+                            "type": "context_id",
+                            "required": false
+                        },
+                        "supersedes": {
+                            "type": "context_id_list",
+                            "required": false,
+                            "min_items": 0,
+                            "max_items": 12
+                        }
+                    },
+                    "sections": {
+                        "ordered": [
+                            "정의"
+                        ],
+                        "required": [
+                            "정의"
+                        ],
+                        "primary": "정의"
+                    },
+                    "index_projection": [
+                        "scope",
+                        "term_key",
+                        "term"
+                    ],
+                    "lifecycle": {
+                        "allowed_topologies": [
+                            "create_current",
+                            "replace_same_state",
+                            "retire_current",
+                            "supersede_current"
+                        ],
+                        "reasons": {
+                            "deprecated": {
+                                "topology": "retire_current",
+                                "required_fields": [
+                                    "retired_at",
+                                    "retired_reason",
+                                    "deprecation_reason"
+                                ],
+                                "forbidden_fields": [
+                                    "superseded_by"
+                                ],
+                                "successor": "forbidden",
+                                "references": []
+                            },
+                            "superseded": {
+                                "topology": "supersede_current",
+                                "required_fields": [
+                                    "retired_at",
+                                    "retired_reason",
+                                    "superseded_by"
+                                ],
+                                "forbidden_fields": [
+                                    "deprecation_reason",
+                                    "replacement_term"
+                                ],
+                                "successor": "required",
+                                "references": [
+                                    {
+                                        "location": "predecessor",
+                                        "field": "superseded_by",
+                                        "target": "successor",
+                                        "match": "equals"
+                                    },
+                                    {
+                                        "location": "successor",
+                                        "field": "supersedes",
+                                        "target": "predecessor",
+                                        "match": "contains"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "intent": {
+            "descriptor": {
+                "schema": "context-owner-descriptor/v2",
+                "owner": "context-intent",
+                "kind": "intent",
+                "artifact_schema": "context-intent/v1",
+                "authority": "authoritative",
+                "structural_profile": {
+                    "schema": "context-structural-profile/v1",
+                    "fields": {
+                        "scope": {
+                            "type": "string",
+                            "required": true,
+                            "min_chars": 1,
+                            "max_chars": 160
+                        },
+                        "intent_key": {
+                            "type": "string",
+                            "required": true,
+                            "min_chars": 1,
+                            "max_chars": 80
+                        },
+                        "retired_at": {
+                            "type": "timestamp",
+                            "required": false
+                        },
+                        "retired_reason": {
+                            "type": "enum",
+                            "required": false,
+                            "values": [
+                                "superseded"
+                            ]
+                        },
+                        "superseded_by": {
+                            "type": "context_id",
+                            "required": false
+                        },
+                        "supersedes": {
+                            "type": "context_id_list",
+                            "required": false,
+                            "min_items": 0,
+                            "max_items": 12
+                        }
+                    },
+                    "sections": {
+                        "ordered": [
+                            "Intent",
+                            "Success criteria",
+                            "Constraints",
+                            "Revisit conditions"
+                        ],
+                        "required": [
+                            "Intent"
+                        ],
+                        "primary": "Intent"
+                    },
+                    "index_projection": [
+                        "scope",
+                        "intent_key"
+                    ],
+                    "lifecycle": {
+                        "allowed_topologies": [
+                            "create_current",
+                            "supersede_current"
+                        ],
+                        "reasons": {
+                            "superseded": {
+                                "topology": "supersede_current",
+                                "required_fields": [
+                                    "retired_at",
+                                    "retired_reason",
+                                    "superseded_by"
+                                ],
+                                "forbidden_fields": [],
+                                "successor": "required",
+                                "references": [
+                                    {
+                                        "location": "predecessor",
+                                        "field": "superseded_by",
+                                        "target": "successor",
+                                        "match": "equals"
+                                    },
+                                    {
+                                        "location": "successor",
+                                        "field": "supersedes",
+                                        "target": "predecessor",
+                                        "match": "contains"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "document": {
+            "descriptor": {
+                "schema": "context-owner-descriptor/v2",
+                "owner": "context-document",
+                "kind": "document",
+                "artifact_schema": "context-document/v1",
+                "authority": "authoritative",
+                "structural_profile": {
+                    "schema": "context-structural-profile/v1",
+                    "fields": {
+                        "scope": {
+                            "type": "string",
+                            "required": true,
+                            "min_chars": 1,
+                            "max_chars": 160
+                        },
+                        "document_key": {
+                            "type": "string",
+                            "required": true,
+                            "min_chars": 1,
+                            "max_chars": 80
+                        }
+                    },
+                    "sections": {
+                        "ordered": [
+                            "Content"
+                        ],
+                        "required": [
+                            "Content"
+                        ],
+                        "primary": "Content"
+                    },
+                    "index_projection": [
+                        "scope",
+                        "document_key"
+                    ],
+                    "lifecycle": {
+                        "allowed_topologies": [
+                            "create_current",
+                            "replace_same_state"
+                        ],
+                        "reasons": {}
+                    }
+                }
+            }
+        }
+    },
+    "policy": "<!-- BEGIN context-core-policy (managed by context-core) -->\n## Durable context workflow\n\n- Resolve the active language from an explicit user language choice, then the host's preferred response language, then the established conversation language, and finally English. OS locale is not authoritative. Keep machine-readable surfaces in canonical English and preserve artifact prose.\n- Whyve is one plugin. On a durable signal, read project-local `.whyve/config.json` for enabled features and approval mode. Missing config preserves registered features and explicit mode. Shared vaults do not share settings. Only a direct user request through Whyve init may change settings.\n- Audit each user turn's new meaning once. No durable signal means zero context tool calls and no audit status or capture question. For a mechanical local edit, skip AGENTS/guidance discovery and exclude `context/`: use the named path, or infer one task subtree and search once. Never use `.`, `--hidden`, repository-wide globs or the repository root; ask for the path instead of widening. Keep the scope/anchor, read Current IDs and pending/dismissed references in a session-only ledger, never a copied vault.\n- Recall only if prior context can change the answer: list index metadata with exact filters first, then read selected actual bodies. An empty or incomplete page is not proof of absence. Judge meaning from actual bodies, scope and rationale; IDs, digests and metadata are not semantic evidence. Report a conflict before the primary conclusion. Hold an action whose change intent is unresolved: keep means not performed; supersede requires an explicit user choice. A satisfied revisit condition permits reassessment, not implementation. Never ask again for an already explicit choice.\n- Only enabled owners participate in automatic recall, routing and recording. Disabled features preserve records and explicit historical reads. SNAP is staging, OBS is evidence and DEC is an authoritative user choice. Do not turn uncertainty or an LLM preference into a user commitment. Missing evidence or rationale is a quality flag, never a reason to invent content.\n- Finish the primary request first. Follow the loaded shared recording policy: `explicit` records on direct, explicit, unconditional semantic approval; `auto` records eligible durable context without per-record questions; `adaptive` lets the LLM choose record or ask based on meaning, scope, evidence, conflicts and consequences. Ask only when the selected mode requires it, never a second storage question.\n- Core is the sole writer. Every write is `prepare` with user or policy authorization, then `apply` of that unchanged prepared handle in the same response; when prepare returns `needs_review`, compare, judge each mandatory record from its actual body and prepare again with the comparison receipt and judgments. Apply re-checks the frozen preview, project settings, file digests (CAS), the vault lock and atomic writes. Never show the rendered storage body merely to authorize persistence. Never rebuild approved meaning; re-evaluate if settings or content change. A generic acknowledgement, praise, condition, edit request, or topic change is not user approval. Report policy-authorized records honestly. Recording policy grants no unrelated execution or publication permission.\n<!-- END context-core-policy (managed by context-core) -->",
+    "merge_attributes": "# BEGIN context-core-merge (managed by context-core)\n# Generated context indexes are projections of the artifacts. Let Git keep both sides,\n# then run `whyve refresh --fix` to re-derive the canonical index.\ncontext/**/*.index.md merge=union\n# END context-core-merge (managed by context-core)"
+}

@@ -1,0 +1,53 @@
+{
+  "name": "@whyve/context",
+  "version": "0.3.0",
+  "description": "Filesystem context records shared by Node.js clients and the Whyve CLI",
+  "type": "commonjs",
+  "main": "./plugins/whyve/dist/index.js",
+  "types": "./plugins/whyve/dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./plugins/whyve/dist/index.d.ts",
+      "default": "./plugins/whyve/dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "whyve": "./plugins/whyve/dist/cli.js"
+  },
+  "files": [
+    "plugins/whyve/dist",
+    "plugins/whyve/skills/**/*.md",
+    "plugins/whyve/skills/**/*.mjs",
+    "plugins/whyve/rules",
+    "plugins/whyve/templates",
+    "plugins/whyve/.claude-plugin",
+    "plugins/whyve/.codex-plugin",
+    "README.md",
+    "README.ko.md",
+    "SECURITY.md",
+    "AGENTS.md",
+    "MIGRATION.md",
+    "LICENSE",
+    "docs/record-model.md",
+    "docs/node-api.md",
+    "docs/node-api.ko.md",
+    "docs/compatibility.md",
+    "examples/consumer.cjs"
+  ],
+  "engines": {
+    "node": ">=20.20.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.cjs",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test tests/node/*.test.cjs",
+    "prepack": "npm run build",
+    "test:package": "node scripts/test-package.cjs"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "typescript": "^5.9.3"
+  }
+}
