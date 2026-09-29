@@ -1,6 +1,6 @@
 # Whyve plugin privacy notice
 
-Last updated: September 29, 2026. This notice covers the open-source Whyve plugin for Claude Code and Codex. The [Whyve website privacy notice](https://whyve.vercel.app/privacy/) separately covers the websites and their waitlist. The publisher is Jinwuk Lee; contact: [jeis.jw@gmail.com](mailto:jeis.jw@gmail.com).
+Last updated: September 29, 2026. This notice covers the open-source Whyve plugin for Claude Code and Codex. The [Whyve website privacy notice](https://whyve.swimit.io/privacy/) separately covers the websites and their waitlist. The publisher is Jinwuk Lee; contact: [jeis.jw@gmail.com](mailto:jeis.jw@gmail.com).
 
 ## Project records
 

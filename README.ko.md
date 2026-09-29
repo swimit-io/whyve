@@ -122,7 +122,7 @@ Whyve가 기록을 확인해 주고, 저장된 이유를 꺼내고, 새 아이�
 
 ## Whyve로 만든 제품
 
-[Howse](https://howse-delta.vercel.app/)는 Codex와 Claude Code를 내 Mac에서 한 팀으로 움직이게 하는 앱입니다. Whyve가 들어 있어서 한 에이전트가 정한 결정을 다음 에이전트가 이어받습니다.
+[Howse](https://howse.swimit.io/)는 Codex와 Claude Code를 내 Mac에서 한 팀으로 움직이게 하는 앱입니다. Whyve가 들어 있어서 한 에이전트가 정한 결정을 다음 에이전트가 이어받습니다.
 
 *이름의 뜻:* Whyve는 *why*(왜)와 *weave*(엮다)를 합친 이름입니다. 선택의 이유를 한 올로 엮어 세션에서 세션으로 이어 갑니다.
 

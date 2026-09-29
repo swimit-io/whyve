@@ -117,7 +117,7 @@ The repository's [tests](https://github.com/swimit-io/whyve/tree/main/tests/node
 
 ## Built with Whyve
 
-[Howse](https://howse-delta.vercel.app/) runs Codex and Claude Code as one team on your Mac, with Whyve built in so decisions carry from one agent to the next.
+[Howse](https://howse.swimit.io/) runs Codex and Claude Code as one team on your Mac, with Whyve built in so decisions carry from one agent to the next.
 
 *The name:* Whyve is *why* + *weave*. It weaves the reasons behind your choices into a thread that carries across sessions.
 

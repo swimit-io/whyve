@@ -1,6 +1,6 @@
 # Whyve 플러그인 개인정보 안내
 
-마지막 수정: 2026년 9월 29일. 이 안내는 Claude Code와 Codex용 오픈 소스 Whyve 플러그인에 적용합니다. [Whyve 웹사이트 개인정보 안내](https://whyve.vercel.app/ko/privacy/)는 웹사이트와 대기자 명단을 별도로 다룹니다. 운영자는 Jinwuk Lee이고, 연락처는 [jeis.jw@gmail.com](mailto:jeis.jw@gmail.com)입니다.
+마지막 수정: 2026년 9월 29일. 이 안내는 Claude Code와 Codex용 오픈 소스 Whyve 플러그인에 적용합니다. [Whyve 웹사이트 개인정보 안내](https://whyve.swimit.io/ko/privacy/)는 웹사이트와 대기자 명단을 별도로 다룹니다. 운영자는 Jinwuk Lee이고, 연락처는 [jeis.jw@gmail.com](mailto:jeis.jw@gmail.com)입니다.
 
 ## 프로젝트 기록
 

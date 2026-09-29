@@ -7,7 +7,7 @@
     "email": "jeis.jw@gmail.com",
     "url": "https://github.com/Jeis-Jw"
   },
-  "homepage": "https://whyve.vercel.app/",
+  "homepage": "https://whyve.swimit.io/",
   "repository": "https://github.com/swimit-io/whyve",
   "license": "Apache-2.0",
   "keywords": ["project context", "decisions", "coding agents"],
@@ -23,7 +23,7 @@
       "Recall project context across sessions",
       "Compare proposed changes with current decisions"
     ],
-    "websiteURL": "https://whyve.vercel.app/",
+    "websiteURL": "https://whyve.swimit.io/",
     "supportURL": "https://github.com/swimit-io/whyve/issues",
     "privacyPolicyURL": "https://github.com/swimit-io/whyve/blob/main/plugins/whyve/PRIVACY.md",
     "logo": "./assets/icon.png",
