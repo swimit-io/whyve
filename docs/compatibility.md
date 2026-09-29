@@ -22,8 +22,8 @@ normative record convention is [record-model.md](record-model.md).
 - An interrupted process needs explicit dead-owner recovery
   (`whyve runtime recover`); a live writer is never evicted because of age.
   This is a local-filesystem protocol for one OS user, not distributed storage.
-- Output stays one JSON envelope with stable error codes and exit codes 0, 2, 3,
-  5, 6 and 1.
+- Output stays one JSON envelope with stable error codes and exit codes 0, 1, 2,
+  3, 5, and 6.
 
 ## Removed surfaces
 
@@ -62,8 +62,8 @@ only path from v2 to v3. It is explicit and reversible:
 2. `--apply-plan FILE` re-checks the inventory under the vault lock, backs up
    the originals to `DIR/backup-<plan>`, applies one journaled transaction and
    verifies IDs, states, relations, archives and index round trips.
-3. `--rollback-plan FILE` restores the backup when the vault is still exactly
-   the migration result.
+3. `--rollback-plan FILE` restores the backup only if the vault still exactly
+   matches the migration result.
 
 `--ref-headers howse` (default) maps `howse:*` source references to `howse.*`
 headers; `none` keeps them as Sources lines. `captured_from` is dropped. Migrated

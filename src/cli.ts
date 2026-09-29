@@ -24,7 +24,7 @@ const USAGE = `whyve ${VERSION} (${PROTOCOL})
   prepare --input FILE [--approved [--reference MSG]... [--meaning TEXT]] | [--policy-decision record|ask --policy-reason TEXT] [--apply]
   apply HANDLE
   refresh [--fix] | doctor
-  migrate-project PATH [--dry-run]                       (.bobbin → .whyve settings)
+  migrate-project PATH [--dry-run]                       (migrate legacy .bobbin settings to .whyve)
   migrate-project PATH --to-format context-common/v3 --plan-dir DIR (--dry-run | --apply-plan FILE | --rollback-plan FILE) [--ref-headers howse|none]
   runtime recover | runtime adopt --confirm-legacy-stopped
 Common: --vault DIR --project DIR --json. Output is one JSON envelope {ok, result|error}.`;
@@ -54,7 +54,7 @@ function parse(argv: string[]): { flags: ObjectValue; positional: string[] } {
         check(i + 1 < argv.length && !(argv[i + 1].startsWith('--') && argv[i + 1] !== '-'), 'usage_invalid', `Missing value for ${arg}.`);
         const value = argv[++i];
         if (REPEATED.has(key)) (flags[key] ??= []).push(value);
-        else { check(flags[key] === undefined, 'usage_invalid', `--${key} is given twice.`); flags[key] = value; }
+        else { check(flags[key] === undefined, 'usage_invalid', `--${key} can be given only once.`); flags[key] = value; }
     }
     return { flags, positional };
 }
@@ -64,7 +64,7 @@ function headerConditions(flags: ObjectValue): { conditions: HeaderCondition[] }
     for (const [flag, op] of [['header', 'eq'], ['header-contains', 'contains'], ['header-regex', 'regex']] as const)
         for (const raw of flags[flag] ?? []) {
             const at = raw.indexOf('=');
-            check(at > 0, 'usage_invalid', `--${flag} is KEY=VALUE.`);
+            check(at > 0, 'usage_invalid', `--${flag} expects KEY=VALUE.`);
             let value = raw.slice(at + 1), extra: { flags?: string } = {};
             const slash = op === 'regex' ? /^\/(.*)\/(i?)$/s.exec(value) : null;
             if (slash) { value = slash[1]; if (slash[2]) extra = { flags: 'i' }; }
@@ -88,7 +88,7 @@ function listOptions(flags: ObjectValue, defaultKind?: string): ListOptions & Ob
 function authorization(flags: ObjectValue, fallback?: Authorization): Authorization {
     if (flags['policy-decision'] || flags['policy-reason']) return { source: 'policy', decision: flags['policy-decision'], reason: flags['policy-reason'] } as Authorization;
     if (flags.approved) return { source: 'user', ...(flags.reference ? { references: flags.reference } : {}), ...(flags.meaning ? { meaning: flags.meaning } : {}) };
-    return fallback ?? fail('approval_required', 'Use --approved only after the user settled this exact content, or supply --policy-decision and --policy-reason for the configured policy.', {}, EXIT.conflict);
+    return fallback ?? fail('approval_required', 'Use --approved only after the user has approved this exact content, or supply --policy-decision and --policy-reason for the configured policy.', {}, EXIT.conflict);
 }
 
 export async function runCli(argv: string[]): Promise<number> {
@@ -102,8 +102,8 @@ export async function runCli(argv: string[]): Promise<number> {
             check(positional.length === 1, 'usage_invalid', 'Usage: whyve migrate-project PATH ...');
             let result: ObjectValue;
             if (flags['to-format'] !== undefined) {
-                check(flags['to-format'] === MODEL.protocol, 'usage_invalid', `--to-format supports ${MODEL.protocol}.`);
-                check(['howse', 'none', undefined].includes(flags['ref-headers']), 'usage_invalid', '--ref-headers is howse or none.');
+                check(flags['to-format'] === MODEL.protocol, 'usage_invalid', `--to-format supports only ${MODEL.protocol}.`);
+                check(['howse', 'none', undefined].includes(flags['ref-headers']), 'usage_invalid', '--ref-headers must be howse or none.');
                 result = await migrateFormat(positional[0], { vault: flags.vault, planDir: flags['plan-dir'], dryRun: !!flags['dry-run'], applyPlan: flags['apply-plan'], rollbackPlan: flags['rollback-plan'], refHeaders: flags['ref-headers'] === 'none' ? null : 'howse', lockTimeoutMs: int(flags['lock-timeout-ms'], 'lock-timeout-ms') });
             }
             else result = migrateProject(positional[0], { dryRun: !!flags['dry-run'] });
@@ -146,9 +146,9 @@ export async function runCli(argv: string[]): Promise<number> {
             case 'runtime':
                 if (positional[0] === 'adopt') result = whyve.adoptLegacy(!!flags['confirm-legacy-stopped']);
                 else if (positional[0] === 'recover') result = await whyve.recoverRuntime();
-                else fail('usage_invalid', 'Expected runtime adopt or recover.');
+                else fail('usage_invalid', 'Expected "runtime adopt" or "runtime recover".');
                 break;
-            default: fail('usage_invalid', `Unknown command: ${command}. Run whyve help.`);
+            default: fail('usage_invalid', `Unknown command: ${command}. Run help to list the commands.`);
         }
         if ((command === 'refresh' || command === 'doctor') && result.ok === false) {
             process.stdout.write(JSON.stringify({ ok: false, error: { code: 'integrity_error', message: 'Record or index validation found issues.', details: result } }) + '\n');

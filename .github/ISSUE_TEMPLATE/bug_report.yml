@@ -20,11 +20,10 @@ body:
     validations:
       required: true
   - type: input
-    id: plugin_versions
+    id: whyve_version
     attributes:
-      label: Plugin versions
-      description: List the installed context-core and semantic-owner versions.
-      placeholder: context-core 0.x, context-decision 0.x
+      label: Whyve version
+      placeholder: 0.3.0
     validations:
       required: true
   - type: input
@@ -56,13 +55,13 @@ body:
   - type: textarea
     id: doctor
     attributes:
-      label: Doctor output
-      description: Run the relevant read-only doctor command. Remove secrets, usernames, home-directory paths, repository paths, and other local identifiers before posting.
+      label: "`whyve doctor` output"
+      description: "Paste the output of `whyve doctor` (in the plugin, `node <plugin>/skills/context/scripts/context_cli.mjs doctor`). It is read-only. Remove secrets, usernames, home-directory paths, repository paths, and other local identifiers first."
       render: shell
   - type: checkboxes
     id: checks
     attributes:
-      label: Safety checks
+      label: Before submitting
       options:
         - label: I removed secrets and local paths from the report.
           required: true

@@ -58,7 +58,7 @@ export function bytes(root: string, relative: string, maximum = 16 * 1024 * 1024
     }
     try {
         const s = fs.fstatSync(fd);
-        check(s.isFile() && s.nlink === 1 && s.size <= maximum, 'path_unsafe', 'Expected a bounded regular file with one link.', { path: relative }, EXIT.integrity);
+        check(s.isFile() && s.nlink === 1 && s.size <= maximum, 'path_unsafe', 'Expected a regular file (not a link or hard-linked file) within the size limit.', { path: relative }, EXIT.integrity);
         const content = fs.readFileSync(fd);
         check(content.length <= maximum, 'input_too_large', 'File exceeded its size limit.', { path: relative });
         return content;
@@ -139,6 +139,12 @@ type Journal = {
     entries: JournalEntry[];
     digest: string;
 };
+// Windows has no POSIX owner/group/other bits: Node reports every writable entry as 0o666/0o777 and uid 0.
+// There the per-user %TEMP% and the vault's own ACL carry the privacy, so only the type/symlink checks apply.
+const WINDOWS = process.platform === 'win32';
+function ownerOnly(s: fs.Stats): boolean {
+    return WINDOWS || ((s.mode & 0o077) === 0 && (process.getuid === undefined || s.uid === process.getuid()));
+}
 /** All readers and writers in this runtime share the same lease. No process.env/cwd mutation. */
 export class Filesystem {
     readonly root: string;
@@ -148,7 +154,7 @@ export class Filesystem {
         const lockRoot = path.join(os.tmpdir(), 'context-core-locks');
         fs.mkdirSync(lockRoot, { recursive: true, mode: 0o700 });
         const s = fs.lstatSync(lockRoot);
-        check(s.isDirectory() && !s.isSymbolicLink() && (s.mode & 0o077) === 0 && (process.getuid === undefined || s.uid === process.getuid()), 'lock_unsafe', 'Legacy lock root must be a private directory.', {}, EXIT.conflict);
+        check(s.isDirectory() && !s.isSymbolicLink() && ownerOnly(s), 'lock_unsafe', 'Legacy lock root must be a private directory.', {}, EXIT.conflict);
         const guard = path.join(lockRoot, sha256(this.root).slice(7));
         try {
             fs.mkdirSync(guard, { mode: 0o700 });
@@ -157,26 +163,26 @@ export class Filesystem {
             if (e.code !== 'EEXIST')
                 throw e;
             const s = fs.lstatSync(guard);
-            check(s.isDirectory() && !s.isSymbolicLink(), 'legacy_runtime_conflict', 'A Python lock file exists. Stop all Python writers, then run whyve runtime adopt --confirm-legacy-stopped.', { vault: this.root }, EXIT.conflict);
-            check((s.mode & 0o077) === 0 && (process.getuid === undefined || s.uid === process.getuid()), 'lock_unsafe', 'Runtime guard must be private.', {}, EXIT.conflict);
+            check(s.isDirectory() && !s.isSymbolicLink(), 'legacy_runtime_conflict', 'A Python lock file exists. Stop all Python writers, then run runtime adopt --confirm-legacy-stopped (whyve runtime adopt, or context_cli.mjs runtime adopt in the plugin).', { vault: this.root }, EXIT.conflict);
+            check(ownerOnly(s), 'lock_unsafe', 'Runtime guard must be private.', {}, EXIT.conflict);
         }
         // At the old fcntl path, a directory makes unmodified Python os.open(O_RDWR) fail.
         const shared = contained(this.root, '.whyve-runtime');
         fs.mkdirSync(shared, { recursive: true, mode: 0o700 });
         const sharedStat = fs.lstatSync(shared);
-        check(sharedStat.isDirectory() && !sharedStat.isSymbolicLink() && (sharedStat.mode & 0o077) === 0 && (process.getuid === undefined || sharedStat.uid === process.getuid()), 'lock_unsafe', 'Vault runtime directory must be private.', {}, EXIT.conflict);
+        check(sharedStat.isDirectory() && !sharedStat.isSymbolicLink() && ownerOnly(sharedStat), 'lock_unsafe', 'Vault runtime directory must be private.', {}, EXIT.conflict);
         return shared;
     }
     adoptLegacy(confirmLegacyStopped: boolean): ObjectValue {
-        check(confirmLegacyStopped === true, 'approval_required', 'Stop all Python writers and explicitly confirm the exclusive cutover.', {}, EXIT.conflict);
+        check(confirmLegacyStopped === true, 'approval_required', 'Stop all Python writers, then rerun runtime adopt with --confirm-legacy-stopped.', {}, EXIT.conflict);
         const lockRoot = path.join(os.tmpdir(), 'context-core-locks');
         fs.mkdirSync(lockRoot, { recursive: true, mode: 0o700 });
         const s = fs.lstatSync(lockRoot);
-        check(s.isDirectory() && !s.isSymbolicLink() && (s.mode & 0o077) === 0, 'lock_unsafe', 'Lock root must be private.');
+        check(s.isDirectory() && !s.isSymbolicLink() && ownerOnly(s), 'lock_unsafe', 'Lock root must be private.');
         const guard = path.join(lockRoot, sha256(this.root).slice(7));
         if (fs.existsSync(guard) && !fs.lstatSync(guard).isDirectory()) {
             const s = fs.lstatSync(guard);
-            check(s.isFile() && s.nlink === 1 && (s.mode & 0o022) === 0, 'lock_unsafe', 'Legacy lock must be a safe regular file.');
+            check(s.isFile() && s.nlink === 1 && (WINDOWS || (s.mode & 0o022) === 0), 'lock_unsafe', 'Legacy lock must be a safe regular file.');
             fs.renameSync(guard, guard + '.python-stopped-' + randomUUID());
         }
         this.guard();
@@ -217,7 +223,7 @@ export class Filesystem {
         const guard = this.guard(), lock = path.join(guard, 'writer'), token = randomUUID(), start = Date.now();
         while (true) {
             if (fs.existsSync(path.join(guard, 'recovery'))) {
-                check(Date.now() - start < this.timeout, 'lock_timeout', 'Recovery is in progress.', {}, EXIT.conflict);
+                check(Date.now() - start < this.timeout, 'lock_timeout', 'Timed out waiting for runtime recovery to finish.', {}, EXIT.conflict);
                 await delay(15);
                 continue;
             }
@@ -260,9 +266,9 @@ export class Filesystem {
                         dead = error.code === 'ESRCH';
                     }
                     if (dead)
-                        fail('lock_owner_dead', 'A writer exited without releasing its lease. Run whyve runtime recover to verify the owner is dead and roll back its journal.', { vault: this.root, pid: owner.pid }, EXIT.conflict);
+                        fail('lock_owner_dead', 'A writer exited without releasing its lease. Run runtime recover (whyve runtime recover, or context_cli.mjs runtime recover in the plugin) to confirm the writer is gone and roll back its journal.', { vault: this.root, pid: owner.pid }, EXIT.conflict);
                 }
-                check(Date.now() - start < this.timeout, 'lock_timeout', 'Timed out waiting for another caller.', { vault: this.root }, EXIT.conflict);
+                check(Date.now() - start < this.timeout, 'lock_timeout', 'Timed out waiting for another Whyve writer to release the vault lock.', { vault: this.root }, EXIT.conflict);
                 await delay(15);
             }
         }

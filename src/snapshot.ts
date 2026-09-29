@@ -7,9 +7,9 @@ export const snapshotCandidate = (candidate: ObjectValue): boolean => object(can
 
 /** Content is not short metadata. Retain Markdown whitespace and Unicode. */
 export function snapshotText(value: unknown, field: string, required = true): string {
-    check(typeof value === 'string' && (!required || substantive(value)), 'schema_invalid', `${field} must contain text${required ? ' that is non-empty' : ''}.`, { field });
+    check(typeof value === 'string' && (!required || substantive(value)), 'schema_invalid', required ? `${field} must not be empty.` : `${field} must be text.`, { field });
     const text = value.replace(/\r\n/g, '\n');
-    check(!text.includes('\r'), 'schema_invalid', 'SNAP content supports LF or CRLF newlines.', { field });
+    check(!text.includes('\r'), 'schema_invalid', 'SNAP content must use LF or CRLF newlines.', { field });
     return text;
 }
 export function snapshotList(value: unknown, field: string, minimum = 0): string[] {

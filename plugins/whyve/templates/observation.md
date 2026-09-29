@@ -14,11 +14,11 @@ verified_at: "{{verified_at}}"
 
 ## Observation
 
-{{reusable fact, finding or lesson}}
+{{reusable fact, finding, or lesson}}
 
 ## Evidence
 
-- {{command and result, file path or ARCHIVE ctx_ ID}}
+- {{command and result, file path, or ARCHIVE ctx_ ID}}
 
 ## Impact
 

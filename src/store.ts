@@ -84,9 +84,9 @@ function matchValue(condition: HeaderCondition, value: HeaderValue | undefined, 
     return values.some(v => condition.op === 'eq' ? nfc(v) === wanted : condition.op === 'contains' ? nfc(v).includes(wanted) : compiled!.test(v));
 }
 function compileConditions(headers: { conditions: HeaderCondition[]; match?: 'all' | 'any' }) {
-    check(object(headers) && Array.isArray(headers.conditions) && headers.conditions.length >= 1 && headers.conditions.length <= 8 && (headers.match === undefined || ['all', 'any'].includes(headers.match)), 'usage_invalid', 'headers needs 1..8 conditions and match all|any.');
+    check(object(headers) && Array.isArray(headers.conditions) && headers.conditions.length >= 1 && headers.conditions.length <= 8 && (headers.match === undefined || ['all', 'any'].includes(headers.match)), 'usage_invalid', 'headers must have 1–8 conditions, and match must be all or any.');
     const compiled = headers.conditions.map(c => {
-        check(object(c) && typeof c.key === 'string' && (isHostKey(c.key) || /^[a-z][a-z0-9_]*$/.test(c.key)) && ['eq', 'contains', 'regex'].includes(c.op) && typeof c.value === 'string' && (c.flags === undefined || c.op === 'regex'), 'usage_invalid', 'A header condition is {key, op: eq|contains|regex, value, flags?}.');
+        check(object(c) && typeof c.key === 'string' && (isHostKey(c.key) || /^[a-z][a-z0-9_]*$/.test(c.key)) && ['eq', 'contains', 'regex'].includes(c.op) && typeof c.value === 'string' && (c.flags === undefined || c.op === 'regex'), 'usage_invalid', 'Each header condition must be {key, op, value, flags?}, where op is eq, contains, or regex, and flags is allowed only with regex.');
         return c.op === 'regex' ? compileRegex(c.value, c.flags ?? '') : undefined;
     });
     const all = (headers.match ?? 'all') === 'all';
@@ -142,9 +142,9 @@ export class Whyve implements WhyveHost {
     private view(): VaultView { return new VaultView(this.vault); }
     private writableView(): VaultView {
         const format = detectFormat(this.vault);
-        check(format !== 'v2', 'migration_required', 'This vault uses context-common/v2. Reading works; writing requires `whyve migrate-project PATH --to-format context-common/v3`.', { vault: this.vault }, EXIT.conflict);
+        check(format !== 'v2', 'migration_required', 'This vault uses context-common/v2 and is read-only. To write, migrate it with migrate-project PATH --to-format context-common/v3 --plan-dir DIR (whyve migrate-project, or context_cli.mjs migrate-project in the plugin).', { vault: this.vault }, EXIT.conflict);
         const view = this.view();
-        check(!view.outdated.length, 'registry_outdated', 'Registered descriptors differ from this runtime; run whyve refresh --fix.', { kinds: view.outdated }, EXIT.conflict);
+        check(!view.outdated.length, 'registry_outdated', 'Registered descriptors differ from this runtime. Run refresh --fix (whyve refresh --fix, or context_cli.mjs refresh --fix in the plugin).', { kinds: view.outdated }, EXIT.conflict);
         return view;
     }
     private binding(view: VaultView): ObjectValue {
@@ -235,7 +235,7 @@ export class Whyve implements WhyveHost {
     async refresh(fix = false): Promise<ObjectValue> {
         return this.locked(() => {
             const format = detectFormat(this.vault);
-            check(format !== 'none', 'context_root_missing', 'Context root index is missing; run whyve init.', {}, EXIT.notFound);
+            check(format !== 'none', 'context_root_missing', 'Context root index is missing. Initialize Whyve first ($whyve:init in Codex, /whyve:init in Claude Code, or whyve init).', {}, EXIT.notFound);
             check(!fix || format === 'v3', 'migration_required', 'Index repair writes v3 files; migrate this vault first.', {}, EXIT.conflict);
             const issues: ObjectValue[] = [], changes: FileChange[] = [];
             let kinds: Kind[];
@@ -293,27 +293,27 @@ export class Whyve implements WhyveHost {
         check(['current', 'history', 'all'].includes(state), 'usage_invalid', 'state must be current, history or all.');
         let scope: { value: string; match: string } | null = null;
         if (o.scope !== undefined) {
-            check(object(o.scope) && typeof o.scope.value === 'string' && (o.scope.match === undefined || ['exact', 'ancestor', 'descendant', 'overlap'].includes(o.scope.match)), 'usage_invalid', 'scope is {value, match: exact|ancestor|descendant|overlap}.');
+            check(object(o.scope) && typeof o.scope.value === 'string' && (o.scope.match === undefined || ['exact', 'ancestor', 'descendant', 'overlap'].includes(o.scope.match)), 'usage_invalid', 'scope must be {value, match?}, where match is exact, ancestor, descendant, or overlap.');
             scope = { value: canonicalScope(o.scope.value), match: o.scope.match ?? 'exact' };
             applied.push('scope');
         }
         const key = o.key === undefined ? null : canonicalKey(o.key);
         const time = (range: ListFilters['created'], name: string) => {
             if (range === undefined) return null;
-            check(object(range) && Object.keys(range).every(k => ['from', 'to'].includes(k)), 'usage_invalid', `${name} is {from?, to?}.`);
-            const parse = (v: unknown) => { if (v === undefined) return null; check(typeof v === 'string' && Number.isFinite(Date.parse(v)), 'usage_invalid', `${name} bounds are ISO dates or timestamps.`); return Date.parse(v as string); };
+            check(object(range) && Object.keys(range).every(k => ['from', 'to'].includes(k)), 'usage_invalid', `${name} must be {from?, to?}.`);
+            const parse = (v: unknown) => { if (v === undefined) return null; check(typeof v === 'string' && Number.isFinite(Date.parse(v)), 'usage_invalid', `${name} bounds must be ISO dates or timestamps.`); return Date.parse(v as string); };
             applied.push(name);
             return { from: parse(range.from), to: parse(range.to) };
         };
         const created = time(o.created, 'created'), updated = time(o.updated, 'updated');
         let keywords: { values: string[]; all: boolean } | null = null;
         if (o.keywords !== undefined) {
-            check(object(o.keywords) && Array.isArray(o.keywords.values) && o.keywords.values.length >= 1 && o.keywords.values.length <= 12 && o.keywords.values.every(v => typeof v === 'string') && (o.keywords.match === undefined || ['all', 'any'].includes(o.keywords.match)), 'usage_invalid', 'keywords is {values: 1..12 strings, match: all|any}.');
+            check(object(o.keywords) && Array.isArray(o.keywords.values) && o.keywords.values.length >= 1 && o.keywords.values.length <= 12 && o.keywords.values.every(v => typeof v === 'string') && (o.keywords.match === undefined || ['all', 'any'].includes(o.keywords.match)), 'usage_invalid', 'keywords must be {values, match?} with 1–12 string values, and match must be all or any.');
             keywords = { values: o.keywords.values.map(nfc), all: (o.keywords.match ?? 'all') === 'all' };
             applied.push('keywords');
         }
-        if (o.ids !== undefined) { check(Array.isArray(o.ids) && o.ids.length <= 500, 'usage_invalid', 'ids is a list of at most 500 IDs.'); o.ids.forEach(id => requireId(id, 'ids')); applied.push('ids'); }
-        if (o.textContains !== undefined) { check(typeof o.textContains === 'string' && o.textContains.length > 0 && o.textContains.length <= 200, 'usage_invalid', 'textContains is a non-empty string of at most 200 characters.'); applied.push('textContains'); }
+        if (o.ids !== undefined) { check(Array.isArray(o.ids) && o.ids.length <= 500, 'usage_invalid', 'ids must be a list of at most 500 IDs.'); o.ids.forEach(id => requireId(id, 'ids')); applied.push('ids'); }
+        if (o.textContains !== undefined) { check(typeof o.textContains === 'string' && o.textContains.length > 0 && o.textContains.length <= 200, 'usage_invalid', 'textContains must be a non-empty string of at most 200 characters.'); applied.push('textContains'); }
         if (key !== null) applied.push('key');
         if (o.kinds) applied.push('kinds');
         if (o.state) applied.push('state');
@@ -356,7 +356,7 @@ export class Whyve implements WhyveHost {
         return this.locked(() => {
             const o = options<ListOptions>(input, ['kinds', 'state', 'scope', 'key', 'created', 'updated', 'keywords', 'ids', 'textContains', 'headers', 'order', 'strictIndex', 'limit', 'cursor'], 'list');
             const limit = pageLimit(o.limit, LIMITS.list_default, LIMITS.list_max), view = this.view(), warnings: RowPage['warnings'] = [];
-            check(o.order === undefined || ['default', 'recent'].includes(o.order), 'usage_invalid', 'order is default or recent.');
+            check(o.order === undefined || ['default', 'recent'].includes(o.order), 'usage_invalid', 'order must be default or recent.');
             const selected = this.filterRows(view, o, warnings);
             let rows = selected.rows, scan: Coverage['headerScan'] | undefined, stats = '';
             if (o.headers !== undefined) {
@@ -402,7 +402,7 @@ export class Whyve implements WhyveHost {
             check(o.headers !== undefined, 'usage_invalid', 'searchHeaders requires header conditions.');
             const matches = compileConditions(o.headers), limit = pageLimit(o.limit, LIMITS.header_scan_default, LIMITS.header_scan_max), view = this.view();
             const select = o.select ?? [];
-            check(Array.isArray(select) && select.length <= 16 && select.every(k => typeof k === 'string' && (isHostKey(k) || /^[a-z][a-z0-9_]*$/.test(k) || /^[a-z][a-z0-9_-]*\.\*$/.test(k))), 'usage_invalid', 'select lists header keys or namespace.* patterns.');
+            check(Array.isArray(select) && select.length <= 16 && select.every(k => typeof k === 'string' && (isHostKey(k) || /^[a-z][a-z0-9_]*$/.test(k) || /^[a-z][a-z0-9_-]*\.\*$/.test(k))), 'usage_invalid', 'select must list at most 16 header keys or namespace.* patterns.');
             const selected = this.filterRows(view, { ...o, headers: undefined } as ListFilters, []);
             const rows = selected.rows.sort((a, b) => compareText(a.fields.kind, b.fields.kind) || compareText(a.fields.createdAt, b.fields.createdAt) || compareText(a.fields.id, b.fields.id));
             const selectionDigest = canonicalDigest(rows.map(r => r.rawLine));
@@ -438,7 +438,7 @@ export class Whyve implements WhyveHost {
         const order = [...spec(kind).sections.map(s => s.name).flatMap(name => record.sections.filter(s => s.name === name)), ...record.sections.filter(s => !s.name)];
         let chosen = order;
         if (o.sections !== undefined) {
-            check(Array.isArray(o.sections) && o.sections.length >= 1 && o.sections.every(s => typeof s === 'string'), 'usage_invalid', 'sections is a non-empty list of section names.');
+            check(Array.isArray(o.sections) && o.sections.length >= 1 && o.sections.every(s => typeof s === 'string'), 'usage_invalid', 'sections must be a non-empty list of section names.');
             chosen = o.sections.map(name => {
                 const found = order.find(s => s.title === name || s.name === name || (!!s.name && sectionSpec(kind, name)?.name === s.name));
                 check(found, 'section_invalid', 'Requested section does not exist.', { section: name });
@@ -476,7 +476,7 @@ export class Whyve implements WhyveHost {
             lifecycle: loaded.state === 'history' ? { retiredAt: h.retired_at as string, reason: h.lifecycle_reason as string, successor, predecessors: record.sources.filter(s => s.relation === 'supersedes').map(s => s.ref) } : null,
             contentDigest: loaded.digest, delivered: { sections: delivered, bytes: used, ...(partial ? { partial } : {}) }, complete,
             nextCursor: done ? null : encodeCursor({ v: 3, ...handle, offset: 1, extra: { section: index, byte: offset } }),
-            ...(o.raw ? { raw: (check(utf8Length(loaded.content) <= LIMITS.read_max_bytes, 'usage_invalid', 'raw is available for files up to 256 KiB.'), loaded.content) } : {}),
+            ...(o.raw ? { raw: (check(utf8Length(loaded.content) <= LIMITS.read_max_bytes, 'usage_invalid', 'raw is available only for files up to 256 KiB.'), loaded.content) } : {}),
         };
     }
 
@@ -486,7 +486,7 @@ export class Whyve implements WhyveHost {
         const kind = input.kind, s = spec(kind), scope = canonicalScope(input.scope);
         if (s.key === 'derived') {
             const term = input.body?.term;
-            check(typeof term === 'string', 'usage_invalid', 'TERM needs body.term.');
+            check(typeof term === 'string', 'usage_invalid', 'TERM records require body.term.');
             const aliases = (input.body.aliases as string[] | undefined) ?? [], deprecated = (input.body.deprecated_terms as string[] | undefined) ?? [];
             return { id, kind, scope, key: canonicalKey(term), vocabulary: [term, ...aliases, ...deprecated].map(canonicalKey) };
         }
@@ -546,7 +546,7 @@ export class Whyve implements WhyveHost {
             add(mandatory, target.id, 'referenced');
         }
         if (expand !== undefined) {
-            check(object(expand) && Object.keys(expand).every(k => ['sameScope', 'crossKindKey', 'ids'].includes(k)), 'usage_invalid', 'expand accepts sameScope, crossKindKey and ids.');
+            check(object(expand) && Object.keys(expand).every(k => ['sameScope', 'crossKindKey', 'ids'].includes(k)), 'usage_invalid', 'expand accepts only sameScope, crossKindKey, and ids.');
             for (const k of view.kinds) {
                 if (!(expand.sameScope || (expand.crossKindKey && ['decision', 'intent'].includes(kind) && ['decision', 'intent'].includes(k) && k !== kind))) continue;
                 for (const row of view.rows(k).filter(r => r.fields.state === 'current')) {
@@ -564,7 +564,7 @@ export class Whyve implements WhyveHost {
         return this.locked(() => {
             const o = options<CompareRequest>(request, ['record', 'action', 'targetId', 'expand', 'limit', 'cursor', 'maxBytes'], 'compare');
             const action = o.action ?? (o.targetId ? 'supersede' : 'capture');
-            check(['capture', 'supersede', 'update'].includes(action), 'usage_invalid', 'action is capture, supersede or update.');
+            check(['capture', 'supersede', 'update'].includes(action), 'usage_invalid', 'action must be capture, supersede, or update.');
             check(action === 'capture' || typeof o.targetId === 'string', 'usage_invalid', `${action} comparison requires targetId.`);
             const view = this.view(), budget = byteLimit(o.maxBytes), limit = pageLimit(o.limit, 20, 100);
             const set = this.comparisonSet(view, o.record, action, o.targetId, o.expand);
@@ -612,14 +612,14 @@ export class Whyve implements WhyveHost {
     }
     private checkReceiptShape(receipt: ComparisonReceipt): void {
         check(object(receipt) && receipt.schema === 'whyve-comparison-receipt/v1' && Array.isArray(receipt.reads) && Array.isArray(receipt.preconditions) && Array.isArray(receipt.mandatory), 'receipt_invalid', 'Comparison receipt is invalid.', {}, EXIT.usage);
-        for (const r of receipt.reads) { check(object(r) && typeof r.path === 'string' && /^sha256:[0-9a-f]{64}$/.test(r.sha256), 'receipt_invalid', 'Receipt reads are {id, path, sha256}.'); requireId(r.id, 'reads.id'); contained(this.vault, r.path); }
-        for (const p of receipt.preconditions) { check(object(p) && typeof p.path === 'string' && (p.sha256 === null || /^sha256:[0-9a-f]{64}$/.test(p.sha256)), 'receipt_invalid', 'Receipt preconditions are {path, sha256}.'); contained(this.vault, p.path); }
+        for (const r of receipt.reads) { check(object(r) && typeof r.path === 'string' && /^sha256:[0-9a-f]{64}$/.test(r.sha256), 'receipt_invalid', 'Each receipt read must be {id, path, sha256}.'); requireId(r.id, 'reads.id'); contained(this.vault, r.path); }
+        for (const p of receipt.preconditions) { check(object(p) && typeof p.path === 'string' && (p.sha256 === null || /^sha256:[0-9a-f]{64}$/.test(p.sha256)), 'receipt_invalid', 'Each receipt precondition must be {path, sha256}.'); contained(this.vault, p.path); }
     }
 
     // ------------------------------------------------------------ write planning
     private findCurrent(view: VaultView, id: string, expectedDigest: string): Loaded {
         const loaded = view.find(id);
-        check(typeof expectedDigest === 'string' && /^sha256:[0-9a-f]{64}$/.test(expectedDigest), 'usage_invalid', 'expectedDigest is the contentDigest from read.');
+        check(typeof expectedDigest === 'string' && /^sha256:[0-9a-f]{64}$/.test(expectedDigest), 'usage_invalid', 'expectedDigest must be the contentDigest returned by read.');
         check(loaded.digest === expectedDigest, 'digest_conflict', 'The record changed since it was read. Read it again and reconcile.', { id, expected_digest: expectedDigest, current_digest: loaded.digest }, EXIT.conflict);
         return loaded;
     }
@@ -632,7 +632,7 @@ export class Whyve implements WhyveHost {
     private plan(view: VaultView, mutation: Mutation & { now: string }, authorization: Authorization): { changes: PreviewFile[]; recordId: string; slotChanged: Set<string>; touched: Kind[]; flags: string[] } {
         const now = mutation.now, overlay = new Map<string, string | null>(), changes: PreviewFile[] = [], slotChanged = new Set<string>(), touched = new Set<Kind>();
         const write = (relative: string, before: string | null, content: string | null) => { overlay.set(relative, content); changes.push({ path: relative, beforeDigest: before, afterDigest: content === null ? null : sha256(fileBytes(content)), content }); };
-        const registered = (kind: Kind) => check(view.kinds.includes(kind), 'area_not_registered', 'Initialize this feature first.', { kind }, EXIT.conflict);
+        const registered = (kind: Kind) => check(view.kinds.includes(kind), 'area_not_registered', 'This feature is not enabled. Enable it with $whyve:init (Codex) or /whyve:init (Claude Code).', { kind }, EXIT.conflict);
         const createRecord = (input: RecordInput, id: string, extra: SourceEntry[] = []): { record: StoredRecord; relative: string; content: string } => {
             const record = recordFromInput(input, { id, now, authorization });
             record.sources.unshift(...extra);
@@ -665,12 +665,12 @@ export class Whyve implements WhyveHost {
                 const predecessor = this.findCurrent(view, mutation.id, mutation.expectedDigest), successorKind = mutation.successor?.kind;
                 check(predecessor.state === 'current', 'lifecycle_invalid', 'Supersede requires a Current record.', {}, EXIT.conflict);
                 check(successorKind === predecessor.kind || (predecessor.kind === 'observation' && successorKind === 'decision' && predecessor.record.headers.kind_hint === 'decision'), 'lifecycle_invalid', 'Unsupported cross-kind supersession.', { from: predecessor.kind, to: successorKind }, EXIT.conflict);
-                check(typeof mutation.reason === 'string' && mutation.reason.trim() && !/[\r\n]/.test(mutation.reason) && codepoints(mutation.reason) <= 500, 'usage_invalid', 'reason is one line of at most 500 codepoints.');
+                check(typeof mutation.reason === 'string' && mutation.reason.trim() && !/[\r\n]/.test(mutation.reason) && codepoints(mutation.reason) <= 500, 'usage_invalid', 'reason must be a single non-empty line of at most 500 codepoints.');
                 const successorId = mutation.successorId ?? fail('usage_invalid', 'supersede requires a frozen successorId.');
                 const made = createRecord(mutation.successor, successorId, [{ relation: 'supersedes', ref: predecessor.id }]);
                 const moved = made.record.headers.scope !== predecessor.record.headers.scope || (made.record.headers.key ?? '') !== (predecessor.record.headers.key ?? '');
-                if (['snapshot', 'document', 'archive'].includes(predecessor.kind)) check(moved, 'lifecycle_invalid', `${predecessor.kind} content changes use update; supersede moves scope or key.`, {}, EXIT.conflict);
-                if (predecessor.kind === 'archive') check(sectionText(made.record, 'Content') === sectionText(predecessor.record, 'Content'), 'immutable_archive', 'ARCHIVE bytes never change; a scope move keeps the original.', {}, EXIT.conflict);
+                if (['snapshot', 'document', 'archive'].includes(predecessor.kind)) check(moved, 'lifecycle_invalid', `Use update to change ${predecessor.kind} content; supersede only moves the scope or key.`, {}, EXIT.conflict);
+                if (predecessor.kind === 'archive') check(sectionText(made.record, 'Content') === sectionText(predecessor.record, 'Content'), 'immutable_archive', 'ARCHIVE content cannot change; a scope move must keep the original bytes.', {}, EXIT.conflict);
                 write(made.relative, null, made.content);
                 retire(predecessor, 'superseded', [{ relation: 'superseded-by', ref: successorId }, { relation: 'retirement-note', ref: mutation.reason.trim() }]);
                 slotChanged.add(successorId);
@@ -683,14 +683,14 @@ export class Whyve implements WhyveHost {
                 const extra: SourceEntry[] = [];
                 if (mutation.note !== undefined) extra.push({ relation: 'retirement-note', ref: String(mutation.note).trim() });
                 check(!['withdrawn', 'invalidated', 'deprecated'].includes(mutation.reason) || extra.length, 'usage_invalid', 'This retirement requires a note.');
-                for (const entry of mutation.sources ?? []) { validateSource(entry); check(!MANAGED_RELATIONS.has(entry.relation), 'sources_invalid', `${entry.relation} entries are written by the core.`); extra.push(entry); }
+                for (const entry of mutation.sources ?? []) { validateSource(entry); check(!MANAGED_RELATIONS.has(entry.relation), 'sources_invalid', `${entry.relation} entries are managed by Whyve and cannot be supplied.`); extra.push(entry); }
                 if (loaded.kind === 'assumption') check(extra.some(s => s.relation === 'evidence'), 'usage_invalid', 'Confirming or refuting an assumption needs an evidence source.');
                 retire(loaded, mutation.reason, extra);
                 return { changes, recordId: loaded.id, slotChanged, touched: [...touched], flags: [] };
             }
             case 'discard': {
                 const loaded = this.findCurrent(view, mutation.id, mutation.expectedDigest);
-                check(['snapshot', 'observation', 'archive'].includes(loaded.kind), 'lifecycle_invalid', 'Authoritative records use their retirement lifecycle.', {}, EXIT.conflict);
+                check(['snapshot', 'observation', 'archive'].includes(loaded.kind), 'lifecycle_invalid', 'Only snapshot, observation, and archive records can be discarded; retire this record instead.', {}, EXIT.conflict);
                 const inbound = view.scan().filter(r => r.id !== loaded.id && (r.record.sources.some(s => s.ref === loaded.id) || ((r.record.headers.anchors as string[] | undefined) ?? []).includes(loaded.id)));
                 check(!inbound.length, 'inbound_reference', 'Referenced records cannot be discarded.', { ids: inbound.map(r => r.id) }, EXIT.conflict);
                 write(loaded.path, loaded.digest, null);
@@ -729,7 +729,7 @@ export class Whyve implements WhyveHost {
                     check(object(patch.body), 'schema_invalid', 'patch.body must be an object of kind fields.');
                     const snapshot = JSON.stringify(record.sections);
                     if (patch.replaceBody) {
-                        check(mode === 'content', 'immutable_section', 'Only SNAP and DOCUMENT replace their body.', {}, EXIT.conflict);
+                        check(mode === 'content', 'immutable_section', 'Only SNAP and DOCUMENT records can replace their body.', {}, EXIT.conflict);
                         const provided = new Set(Object.keys(patch.body)), fields = spec(kind).sections;
                         // Hand-written unregistered sections are not part of the kind body and are kept.
                         record.sections = record.sections.filter(s => !s.name || provided.has(fields.find(f => f.name === s.name)!.field));
@@ -743,7 +743,7 @@ export class Whyve implements WhyveHost {
                 else check(!patch.replaceBody, 'usage_invalid', 'replaceBody requires body.');
                 if (patch.sources !== undefined) {
                     const managed = record.sources.filter(s => MANAGED_RELATIONS.has(s.relation));
-                    const validate = (entries: unknown, name: string) => { check(Array.isArray(entries), 'usage_invalid', `${name} is a list.`); for (const e of entries as SourceEntry[]) { validateSource(e); check(!MANAGED_RELATIONS.has(e.relation), 'sources_invalid', `${e.relation} entries are written by the core.`, { relation: e.relation }); } return entries as SourceEntry[]; };
+                    const validate = (entries: unknown, name: string) => { check(Array.isArray(entries), 'usage_invalid', `${name} must be a list.`); for (const e of entries as SourceEntry[]) { validateSource(e); check(!MANAGED_RELATIONS.has(e.relation), 'sources_invalid', `${e.relation} entries are managed by Whyve and cannot be supplied.`, { relation: e.relation }); } return entries as SourceEntry[]; };
                     if ('replace' in patch.sources) record.sources = [...managed, ...validate(patch.sources.replace, 'sources.replace')];
                     else {
                         const remove = validate(patch.sources.remove ?? [], 'sources.remove'), add = validate(patch.sources.add ?? [], 'sources.add');
@@ -753,9 +753,9 @@ export class Whyve implements WhyveHost {
                     }
                 }
                 if (patch.headers !== undefined) {
-                    check(object(patch.headers) && Object.keys(patch.headers).every(k => ['set', 'unset'].includes(k)), 'usage_invalid', 'patch.headers is {set?, unset?}.');
-                    for (const [key, value] of Object.entries(patch.headers.set ?? {})) { check(isHostKey(key), 'custom_header_invalid', 'Only namespace.name headers are set here.', { key }); h[key] = value; }
-                    for (const key of patch.headers.unset ?? []) { check(isHostKey(key), 'custom_header_invalid', 'Only namespace.name headers are unset here.', { key }); delete h[key]; }
+                    check(object(patch.headers) && Object.keys(patch.headers).every(k => ['set', 'unset'].includes(k)), 'usage_invalid', 'patch.headers must be {set?, unset?}.');
+                    for (const [key, value] of Object.entries(patch.headers.set ?? {})) { check(isHostKey(key), 'custom_header_invalid', 'Only namespace.name headers can be set here.', { key }); h[key] = value; }
+                    for (const key of patch.headers.unset ?? []) { check(isHostKey(key), 'custom_header_invalid', 'Only namespace.name headers can be unset here.', { key }); delete h[key]; }
                 }
                 if (contentChanged && mode === 'content') {
                     h.authorization_source = authorization.source;
@@ -793,7 +793,7 @@ export class Whyve implements WhyveHost {
         check(object(mutation) && typeof (mutation as ObjectValue).action === 'string', 'usage_invalid', 'mutation needs an action.');
         // A JSON copy drops undefined members, which canonical digests cannot represent.
         const m = JSON.parse(JSON.stringify(mutation)) as Mutation & { now: string };
-        check(utf8Length(JSON.stringify(m)) <= LIMITS.request_bytes, 'request_too_large', `A write request is at most ${LIMITS.request_bytes} bytes.`, {}, EXIT.conflict);
+        check(utf8Length(JSON.stringify(m)) <= LIMITS.request_bytes, 'request_too_large', `A write request must be at most ${LIMITS.request_bytes} bytes.`, {}, EXIT.conflict);
         m.now = timestamp();
         if (m.action === 'capture') { if (m.id !== undefined) requireId(m.id, 'id'); else m.id = newId(); }
         if (m.action === 'supersede') { if (m.successorId !== undefined) requireId(m.successorId, 'successorId'); else m.successorId = newId(); }
@@ -834,33 +834,33 @@ export class Whyve implements WhyveHost {
         const missing = mandatory.filter(id => !comparison.reads.some(r => r.id === id && r.sha256 === current.get(id)!.digest));
         if (missing.length) return { gate: { status: 'needs_review', reason: 'comparison_incomplete', remaining: missing, message: 'Some mandatory bodies were not delivered completely. Continue the comparison or read them, then prepare again.' }, separate, preconditions };
         const judgments = new Map<string, Judgment>();
-        check(review === undefined || (object(review) && Array.isArray(review.judgments)), 'usage_invalid', 'semanticReview is {judgments: [{id, judgment, reason}]}.');
+        check(review === undefined || (object(review) && Array.isArray(review.judgments)), 'usage_invalid', 'semanticReview must be {judgments: [{id, judgment, reason}]}.');
         for (const j of review?.judgments ?? []) {
-            check(object(j) && ['same', 'separate', 'support', 'conflict', 'replace', 'unclear'].includes(j.judgment) && typeof j.reason === 'string' && j.reason.trim().length > 0 && j.reason.length <= 1000, 'usage_invalid', 'A judgment is {id, judgment, reason}.');
+            check(object(j) && ['same', 'separate', 'support', 'conflict', 'replace', 'unclear'].includes(j.judgment) && typeof j.reason === 'string' && j.reason.trim().length > 0 && j.reason.length <= 1000, 'usage_invalid', 'Each judgment must be {id, judgment, reason} with a valid judgment and a non-empty reason.');
             requireId(j.id, 'judgments.id');
             judgments.set(j.id, j.judgment);
         }
         const unjudged = mandatory.filter(id => !judgments.has(id));
-        if (unjudged.length) return { gate: { status: 'needs_review', reason: 'judgment_required', remaining: unjudged, message: 'Judge each mandatory record as same, separate, support, conflict, replace or unclear.' }, separate, preconditions };
+        if (unjudged.length) return { gate: { status: 'needs_review', reason: 'judgment_required', remaining: unjudged, message: 'Judge each mandatory record as same, separate, support, conflict, replace, or unclear.' }, separate, preconditions };
         const target = mutation.action === 'supersede' ? mutation.id : null;
         if (target && !['replace', 'same'].includes(judgments.get(target)!))
             return { gate: { status: 'needs_review', reason: 'predecessor_not_replaced', remaining: [target], judgments: [{ id: target, judgment: judgments.get(target)! }], message: 'Supersede requires the predecessor to be judged replace or same from its actual body.' }, separate, preconditions };
         const blocking = mandatory.filter(id => id !== target && !['separate', 'support'].includes(judgments.get(id)!));
-        if (blocking.length) return { gate: { status: 'needs_review', reason: 'semantic_conflict', remaining: blocking, judgments: blocking.map(id => ({ id, judgment: judgments.get(id)! })), message: 'A mandatory record was judged same, conflict, replace or unclear. Reference it, supersede it with an explicit choice, or ask the user.' }, separate, preconditions };
+        if (blocking.length) return { gate: { status: 'needs_review', reason: 'semantic_conflict', remaining: blocking, judgments: blocking.map(id => ({ id, judgment: judgments.get(id)! })), message: 'A mandatory record other than the supersede target was judged same, conflict, replace, or unclear. Reuse the existing record, supersede it after the user explicitly chooses to, or ask the user.' }, separate, preconditions };
         for (const id of mandatory) if (['separate', 'support'].includes(judgments.get(id)!)) separate.add(id);
         const reads = comparison.reads.filter(r => mandatory.includes(r.id)).map(r => ({ path: r.path, sha256: r.sha256 as string | null }));
         return { gate: null, separate, preconditions: [...preconditions, ...reads, ...comparison.preconditions] };
     }
     private checkAuthorization(authorization: Authorization, touched: Kind[]): { approved: boolean; reason?: string; mode: ApprovalMode } {
         const settings = loadSettings(this.project);
-        check(!settings.enabled || touched.every(k => settings.enabled!.includes(k)), 'feature_disabled', 'Enable this feature before recording.', { kinds: touched }, EXIT.conflict);
+        check(!settings.enabled || touched.every(k => settings.enabled!.includes(k)), 'feature_disabled', 'This feature is not enabled. Enable it with $whyve:init (Codex) or /whyve:init (Claude Code).', { kinds: touched }, EXIT.conflict);
         check(object(authorization) && ['user', 'policy'].includes(authorization.source), 'approval_required', 'Provide user or configured policy authorization.', {}, EXIT.conflict);
         if (authorization.source === 'user') {
-            check(Object.keys(authorization).every(k => ['source', 'references', 'meaning'].includes(k)) && (authorization.references === undefined || (Array.isArray(authorization.references) && authorization.references.length <= 12)), 'usage_invalid', 'User authorization is {source, references?, meaning?}.');
+            check(Object.keys(authorization).every(k => ['source', 'references', 'meaning'].includes(k)) && (authorization.references === undefined || (Array.isArray(authorization.references) && authorization.references.length <= 12)), 'usage_invalid', 'User authorization must be {source, references?, meaning?}.');
             for (const ref of authorization.references ?? []) validateSource({ relation: 'authorization', ref });
             return { approved: true, mode: settings.mode };
         }
-        check(typeof authorization.reason === 'string' && authorization.reason.trim() && authorization.reason.length <= 1000 && ['record', 'ask'].includes(authorization.decision), 'policy_assessment_required', 'Policy authorization needs decision record|ask and a reason.', {}, EXIT.conflict);
+        check(typeof authorization.reason === 'string' && authorization.reason.trim() && authorization.reason.length <= 1000 && ['record', 'ask'].includes(authorization.decision), 'policy_assessment_required', 'Policy authorization requires a decision (record or ask) and a reason.', {}, EXIT.conflict);
         if (!settings.config || settings.mode === 'explicit') return { approved: false, reason: 'Explicit mode requires the user to approve this exact preview.', mode: settings.mode };
         check(realDirectory(path.resolve(this.project, settings.config.vault)) === this.vault, 'vault_policy_mismatch', 'Automatic recording is limited to the configured vault.', {}, EXIT.conflict);
         if (authorization.decision === 'ask') return { approved: false, reason: authorization.reason, mode: settings.mode };
@@ -921,7 +921,7 @@ export class Whyve implements WhyveHost {
         check(canonicalDigest(file.binding) === canonicalDigest(this.binding(view)), 'project_policy_changed', 'Project, recording policy or registry changed after the preview; prepare again.', {}, EXIT.conflict);
         for (const p of file.preconditions) check(digestOrNull(this.vault, p.path) === p.sha256, 'stale_reference', 'Compared content changed after the preview; compare and prepare again.', { path: p.path }, EXIT.conflict);
         // Completing a held preview is the human's approval; a policy cannot approve what policy chose to ask about.
-        check(o.authorization?.source === 'user', 'approval_required', 'Only the user can approve a preview that waits for approval.', {}, EXIT.conflict);
+        check(o.authorization?.source === 'user', 'approval_required', 'Only the user can approve a preview that is waiting for approval.', {}, EXIT.conflict);
         const planned = this.plan(view, file.mutation, o.authorization);
         const auth = this.checkAuthorization(o.authorization, planned.touched);
         check(auth.approved, 'approval_required', auth.reason ?? 'Approval is still required.', {}, EXIT.conflict);
@@ -935,7 +935,7 @@ export class Whyve implements WhyveHost {
         return this.locked(() => {
             const file = this.loadPrepared(handle);
             if (file.state === 'applied' && file.receipt) return { ...file.receipt, status: 'already_applied' };
-            check(file.state === 'prepared' || file.state === 'applying', 'approval_required', 'This preview awaits approval; complete it with prepare({ preparedHandle, authorization }).', {}, EXIT.conflict);
+            check(file.state === 'prepared' || file.state === 'applying', 'approval_required', 'This preview is waiting for approval. After the user approves it, run prepare again with {"preparedHandle": ...} as input and --approved.', {}, EXIT.conflict);
             const view = this.writableView();
             check(canonicalDigest(file.binding) === canonicalDigest(this.binding(view)), 'project_policy_changed', 'Project, recording policy, registry or runtime changed after prepare.', {}, EXIT.conflict);
             const settings = loadSettings(this.project), finish = (status: WriteReceipt['status'], changed: string[]) => {

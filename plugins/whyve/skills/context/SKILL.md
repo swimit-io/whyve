@@ -1,9 +1,9 @@
 ---
 name: context
-description: Audit the new conversation delta once; recall only answer-changing context and route mature candidates to the right kind.
+description: Check each new user turn once for context worth recalling or saving; recall only what could change the answer, and route ready items to the right record type.
 ---
 
-Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. No Python, global install, `--help` or reading plugin scripts.
+Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. Don't use Python, a global install, or `--help`, and don't read plugin scripts.
 
 # Context
 
@@ -19,8 +19,8 @@ Audit each user turn's new meaning once. No durable signal means zero context ca
    ```
 
    `list` is exact filtering (kinds, state, scope match, key, keywords, `--text` substring, dates, headers), not ranked search. Check `coverage.complete` and `nextCursor`; an empty page is not proof of absence. `read` returns actual sections and `doNotFollow` for history.
-2. Judge meaning from actual bodies, scope and rationale; IDs, digests and metadata are not semantic evidence. Report a conflict or changed reason before the conclusion and hold the affected action: keep means it is not performed; supersede proceeds only after that explicit choice. A satisfied revisit condition permits reassessment, not implementation. That choice settles the payload; ask no separate storage question.
+2. Judge meaning from actual bodies, scope and rationale; IDs, digests and metadata are not semantic evidence. Report a conflict or changed reason before the conclusion and hold the affected action: "keep" means the action is not performed; "supersede" goes ahead only after the user explicitly chooses it. A satisfied revisit condition permits reassessment, not implementation. The user's choice settles what is recorded; ask no separate storage question.
 3. Finish the primary request first, then propose mature context once per milestone. Route by meaning: user choice → decision, desired direction → intent, verified fact or lesson → observation, unverified premise → assumption, project term → term, living current-state text → document, resume state → snapshot, immutable source → archive. Only enabled kinds participate automatically.
-4. Core alone writes, after checking the frozen preview, settings, slots, lifecycle, indexes, file digests (CAS), lock and atomic write.
+4. Only the core writes, after checking the frozen preview, settings, slots, lifecycle, indexes, file digests (CAS), lock and atomic write.
 
 Discovery, compare, prepare and a refused apply change no record bytes.

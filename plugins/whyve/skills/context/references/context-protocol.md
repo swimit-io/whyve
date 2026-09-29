@@ -1,6 +1,8 @@
 # Vault protocol (`context-common/v3`)
 
-The packaged core (Node.js 20.20.0+) is the only reader-writer of the vault.
+The packaged core (Node.js 20.20.0+) is the only component that reads and writes the vault.
+`whyve …` commands below use the `whyve` CLI; inside the plugin, run the same
+subcommand through a skill wrapper such as `context_cli.mjs refresh --fix`.
 `whyve schema [KIND]` prints the machine-readable model: kinds, headers,
 sections, limits.
 

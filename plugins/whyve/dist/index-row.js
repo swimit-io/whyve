@@ -63,7 +63,7 @@ function parseRow(line) {
         relativePath = decodeURIComponent(line.slice(i + 2, close));
     }
     catch {
-        return invalid('bad percent-encoding');
+        return invalid('invalid percent-encoding');
     }
     if (!/^(?:retired\/)?[^/\\]+\.md$/.test(relativePath) || relativePath.split('/').some(p => p === '.' || p === '..'))
         invalid('path escapes its area');
@@ -77,7 +77,7 @@ function parseRow(line) {
     for (const part of split(columns[1], '; ')) {
         const eq = part.indexOf('=');
         if (eq <= 0)
-            invalid('field without =');
+            invalid('field missing "="');
         const key = part.slice(0, eq), raw = part.slice(eq + 1);
         // Projections are always lists: one index cell cannot tell a one-item list from a string.
         if (key.startsWith('header.')) {
@@ -89,13 +89,13 @@ function parseRow(line) {
         values.set(key, key === 'keywords' ? raw : unescape(raw));
     }
     if ([...values.keys()].join() !== TAIL.join())
-        invalid('fields out of order or missing');
+        invalid('fields missing or out of order');
     const id = values.get('id'), kind = values.get('kind'), state = values.get('state');
     (0, common_1.requireId)(id);
     if (!(0, model_1.isKind)(kind) || !['current', 'history'].includes(state))
-        invalid('kind or state');
+        invalid('invalid kind or state');
     if ((state === 'history') !== relativePath.startsWith('retired/'))
-        invalid('state differs from path');
+        invalid('state does not match path');
     const keywordsRaw = values.get('keywords');
     return {
         rawLine: line,

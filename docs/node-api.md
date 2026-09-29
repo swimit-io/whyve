@@ -3,8 +3,8 @@
 Whyve 0.3.0 provides a reusable TypeScript core for the `context-common/v3`
 record convention. One `@whyve/context` package contains the core, compiled CLI,
 type declarations and agent entrypoints. It needs Node.js **20.20.0 or newer** and
-has no runtime dependencies, native addons, Python, Electron, Git,
-plugin-installation or network requirements. The normative record format is
+has no runtime dependencies or native addons, and doesn't require Python,
+Electron, Git, a plugin installation, or network access. The normative record format is
 [docs/record-model.md](record-model.md); `whyve schema [KIND]` prints it as JSON.
 
 ## Install a local package
@@ -21,8 +21,8 @@ npx --no-install whyve init --vault /path/to/existing/vault --features decision,
 npx --no-install whyve list --vault /path/to/existing/vault --kind decision
 ```
 
-A global CLI install from the same tarball is also supported. This document does
-not imply a package has been published to npm. The plugin checkout ships compiled
+A global CLI install from the same tarball is also supported. The package is not
+published to npm yet. The plugin checkout ships compiled
 `plugins/whyve/dist/`; its `.mjs` scripts import the same CLI.
 
 ## Host API
@@ -42,7 +42,7 @@ const record: RecordInput = {
 };
 let result = await whyve.prepare({ mutation: { action: 'capture', record }, authorization: { source: 'user', references: ['msg/d385'] } });
 if (result.status === 'needs_review') {
-  // Existing records must be judged by the caller's model from their actual bodies.
+  // Existing records must be judged by the caller's model from their full bodies.
   const page = await whyve.compare({ record });
   const judgments = page.items.filter(i => i.mandatory).map(i => ({ id: i.row.fields.id, judgment: 'separate' as const, reason: 'Different question (judged from the body).' }));
   result = await whyve.prepare({ mutation: { action: 'capture', record }, authorization: { source: 'user' }, comparison: page.receipt, semanticReview: { judgments } });
@@ -70,7 +70,7 @@ not a multi-user access service.
 | `status()` | Vault format (`context-common/v3`, `context-common/v2`, `uninitialized`), `writable`, mode, enabled and registered kinds, index digest. |
 | `list(options)` | Index rows with exact filters: `kinds`, `state`, `scope {value, match: exact|ancestor|descendant|overlap}`, `key`, `keywords {values, match}`, `ids`, `textContains` (substring of title or summary), `created`/`updated` ranges, `headers {conditions, match}`; `order`, `limit` (≤ 100), `cursor`. Returns `items[{fields, rawLine}]`, `coverage`, `nextCursor`. No ranking, no body reads (header conditions scan headers). |
 | `searchHeaders(options)` | Reads header blocks only; conditions `eq`, `contains`, `regex` (RE2-like subset, flag `i`); `select` returns values (`howse.*`). Pages of up to 500 files. |
-| `read(id, {sections?, maxBytes?, cursor?, raw?})` | Actual sections, sources, headers, quality flags, `authority`, `doNotFollow`, `lifecycle`, `contentDigest`. Large bodies page with `nextCursor`; `complete` tells whether all was delivered. |
+| `read(id, {sections?, maxBytes?, cursor?, raw?})` | Stored sections, sources, headers, quality flags, `authority`, `doNotFollow`, `lifecycle`, `contentDigest`. Large bodies page with `nextCursor`; `complete` indicates whether the whole body was returned. |
 | `checkSlot(record, {existingId?, supersedeId?})` | Advisory slot occupancy with the same rule prepare and apply enforce. |
 | `compare({record, action?, targetId?, expand?, maxBytes?, cursor?})` | Mandatory comparison set (supersede target, slot occupants, typed references) with complete bodies, optional expansion, and a `receipt` binding what was read. |
 | `validateReadReceipt(receipt)` | Whether the compared files are still unchanged. |
@@ -153,7 +153,8 @@ Library errors are `WhyveError` with `code`, `details`, `exitCode` and
 `migration_required` (v2 vault), `cursor_invalid` / `cursor_stale`.
 `commit_sync_failed` reports `details.applied:true` when every write completed but
 the final directory flush failed. If a writer is killed, `recoverRuntime()` /
-`whyve runtime recover` proves its local PID is dead and rolls back the journal.
+`whyve runtime recover` verifies that the writer's process is no longer running
+and rolls back the journal.
 
 ## Electron
 

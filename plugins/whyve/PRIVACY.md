@@ -10,11 +10,11 @@ The plugin does not require a Whyve account or remote Whyve service, and its pac
 
 ## Retention and deletion
 
-Local records do not expire automatically. Disabling a feature or removing the plugin does not delete existing records. You control deletion of the project's `context/`, any vault you selected and `.whyve/config.json`. Copies already shared with Git or an AI host are subject to those services' policies.
+Local records do not expire automatically. Disabling a feature or removing the plugin does not delete existing records. You control deletion of the project's `context/`, any vault you selected, and `.whyve/config.json`. Copies already shared with Git or an AI host are subject to those services' policies.
 
 ## Support information
 
-Use [GitHub issues](https://github.com/swimit-io/whyve/issues) for ordinary support and [private vulnerability reporting](https://github.com/swimit-io/whyve/security/advisories/new) for security issues. Do not post tokens, unredacted records, personal paths or other sensitive details in a public issue. Email is for privacy requests and inquiries unsuitable for a public issue. If diagnostics are needed, the maintainer first asks for a minimal redacted reproduction.
+Use [GitHub issues](https://github.com/swimit-io/whyve/issues) for ordinary support and [private vulnerability reporting](https://github.com/swimit-io/whyve/security/advisories/new) for security issues. Do not post tokens, unredacted records, personal paths or other sensitive details in a public issue. Use email for privacy requests and questions that shouldn't be public. If diagnostics are needed, the maintainer will first ask for a minimal, redacted reproduction.
 
 Email support material, including any diagnostics you send, is deleted within 30 days after the inquiry is resolved. GitHub issues and private advisories remain subject to GitHub's retention features and policies. The maintainer does not intentionally export them into a separate Whyve support database. You can request deletion of information within the maintainer's control by emailing [jeis.jw@gmail.com](mailto:jeis.jw@gmail.com).
 

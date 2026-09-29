@@ -13,9 +13,9 @@ const snapshotCandidate = (candidate) => (0, common_1.object)(candidate) && (0, 
 exports.snapshotCandidate = snapshotCandidate;
 /** Content is not short metadata. Retain Markdown whitespace and Unicode. */
 function snapshotText(value, field, required = true) {
-    (0, common_1.check)(typeof value === 'string' && (!required || (0, common_1.substantive)(value)), 'schema_invalid', `${field} must contain text${required ? ' that is non-empty' : ''}.`, { field });
+    (0, common_1.check)(typeof value === 'string' && (!required || (0, common_1.substantive)(value)), 'schema_invalid', required ? `${field} must not be empty.` : `${field} must be text.`, { field });
     const text = value.replace(/\r\n/g, '\n');
-    (0, common_1.check)(!text.includes('\r'), 'schema_invalid', 'SNAP content supports LF or CRLF newlines.', { field });
+    (0, common_1.check)(!text.includes('\r'), 'schema_invalid', 'SNAP content must use LF or CRLF newlines.', { field });
     return text;
 }
 function snapshotList(value, field, minimum = 0) {

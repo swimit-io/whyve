@@ -23,7 +23,7 @@ exports.FLAG_MESSAGES = {
     source_missing: 'The archive names no original source.',
     project_signal_missing: 'The term does not state why it is project-specific.',
     authorization_unverified: 'Migrated record; the original approval was not recorded.',
-    legacy_scope_defaulted: 'Migrated record without a scope; scope global was assigned.',
+    legacy_scope_defaulted: 'Migrated record had no scope; the global scope was assigned.',
     summary_derived: 'The summary is a deterministic excerpt of the primary section.',
 };
 /** Relations written only by the core lifecycle and authorization binding. */

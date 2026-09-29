@@ -1,9 +1,9 @@
 ---
 name: intent
-description: When a durable desired project direction emerges, recall and compare it, and record or supersede an INTENT.
+description: When a lasting goal or direction for the project emerges, recall and compare existing intents, then record a new one or replace one.
 ---
 
-Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. No Python, global install, `--help` or reading plugin scripts.
+Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. Don't use Python, a global install, or `--help`, and don't read plugin scripts.
 
 # Intent
 

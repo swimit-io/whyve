@@ -58,7 +58,7 @@ const USAGE = `whyve ${common_1.VERSION} (${common_1.PROTOCOL})
   prepare --input FILE [--approved [--reference MSG]... [--meaning TEXT]] | [--policy-decision record|ask --policy-reason TEXT] [--apply]
   apply HANDLE
   refresh [--fix] | doctor
-  migrate-project PATH [--dry-run]                       (.bobbin → .whyve settings)
+  migrate-project PATH [--dry-run]                       (migrate legacy .bobbin settings to .whyve)
   migrate-project PATH --to-format context-common/v3 --plan-dir DIR (--dry-run | --apply-plan FILE | --rollback-plan FILE) [--ref-headers howse|none]
   runtime recover | runtime adopt --confirm-legacy-stopped
 Common: --vault DIR --project DIR --json. Output is one JSON envelope {ok, result|error}.`;
@@ -97,7 +97,7 @@ function parse(argv) {
         if (REPEATED.has(key))
             (flags[key] ??= []).push(value);
         else {
-            (0, common_1.check)(flags[key] === undefined, 'usage_invalid', `--${key} is given twice.`);
+            (0, common_1.check)(flags[key] === undefined, 'usage_invalid', `--${key} can be given only once.`);
             flags[key] = value;
         }
     }
@@ -110,7 +110,7 @@ function headerConditions(flags) {
     for (const [flag, op] of [['header', 'eq'], ['header-contains', 'contains'], ['header-regex', 'regex']])
         for (const raw of flags[flag] ?? []) {
             const at = raw.indexOf('=');
-            (0, common_1.check)(at > 0, 'usage_invalid', `--${flag} is KEY=VALUE.`);
+            (0, common_1.check)(at > 0, 'usage_invalid', `--${flag} expects KEY=VALUE.`);
             let value = raw.slice(at + 1), extra = {};
             const slash = op === 'regex' ? /^\/(.*)\/(i?)$/s.exec(value) : null;
             if (slash) {
@@ -142,7 +142,7 @@ function authorization(flags, fallback) {
         return { source: 'policy', decision: flags['policy-decision'], reason: flags['policy-reason'] };
     if (flags.approved)
         return { source: 'user', ...(flags.reference ? { references: flags.reference } : {}), ...(flags.meaning ? { meaning: flags.meaning } : {}) };
-    return fallback ?? (0, common_1.fail)('approval_required', 'Use --approved only after the user settled this exact content, or supply --policy-decision and --policy-reason for the configured policy.', {}, common_1.EXIT.conflict);
+    return fallback ?? (0, common_1.fail)('approval_required', 'Use --approved only after the user has approved this exact content, or supply --policy-decision and --policy-reason for the configured policy.', {}, common_1.EXIT.conflict);
 }
 async function runCli(argv) {
     try {
@@ -161,8 +161,8 @@ async function runCli(argv) {
             (0, common_1.check)(positional.length === 1, 'usage_invalid', 'Usage: whyve migrate-project PATH ...');
             let result;
             if (flags['to-format'] !== undefined) {
-                (0, common_1.check)(flags['to-format'] === model_1.MODEL.protocol, 'usage_invalid', `--to-format supports ${model_1.MODEL.protocol}.`);
-                (0, common_1.check)(['howse', 'none', undefined].includes(flags['ref-headers']), 'usage_invalid', '--ref-headers is howse or none.');
+                (0, common_1.check)(flags['to-format'] === model_1.MODEL.protocol, 'usage_invalid', `--to-format supports only ${model_1.MODEL.protocol}.`);
+                (0, common_1.check)(['howse', 'none', undefined].includes(flags['ref-headers']), 'usage_invalid', '--ref-headers must be howse or none.');
                 result = await (0, migrate_format_1.migrateFormat)(positional[0], { vault: flags.vault, planDir: flags['plan-dir'], dryRun: !!flags['dry-run'], applyPlan: flags['apply-plan'], rollbackPlan: flags['rollback-plan'], refHeaders: flags['ref-headers'] === 'none' ? null : 'howse', lockTimeoutMs: int(flags['lock-timeout-ms'], 'lock-timeout-ms') });
             }
             else
@@ -236,9 +236,9 @@ async function runCli(argv) {
                 else if (positional[0] === 'recover')
                     result = await whyve.recoverRuntime();
                 else
-                    (0, common_1.fail)('usage_invalid', 'Expected runtime adopt or recover.');
+                    (0, common_1.fail)('usage_invalid', 'Expected "runtime adopt" or "runtime recover".');
                 break;
-            default: (0, common_1.fail)('usage_invalid', `Unknown command: ${command}. Run whyve help.`);
+            default: (0, common_1.fail)('usage_invalid', `Unknown command: ${command}. Run help to list the commands.`);
         }
         if ((command === 'refresh' || command === 'doctor') && result.ok === false) {
             process.stdout.write(JSON.stringify({ ok: false, error: { code: 'integrity_error', message: 'Record or index validation found issues.', details: result } }) + '\n');

@@ -92,7 +92,7 @@ export const compactJson = (value: unknown) => JSON.stringify(value);
 export const fileBytes = (text: string) => Buffer.from(text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n*$/, '') + '\n', 'utf8');
 export const newId = () => 'ctx_' + randomUUID().replaceAll('-', '');
 export const newPlanId = () => 'plan_' + randomUUID().replaceAll('-', '');
-export function requireId(value: unknown, field = 'id'): asserts value is string { check(typeof value === 'string' && /^ctx_[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$/.test(value), 'id_invalid', `${field} must be ctx_ plus lowercase UUIDv4 hex.`, { field }); }
+export function requireId(value: unknown, field = 'id'): asserts value is string { check(typeof value === 'string' && /^ctx_[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$/.test(value), 'id_invalid', `${field} must be "ctx_" followed by a lowercase UUIDv4 in hex.`, { field }); }
 export function strictJson(text: string, code = 'schema_invalid'): any {
     // A small JSON reader retains duplicate-key detection lost by JSON.parse's reviver.
     let p = 0;
@@ -206,7 +206,7 @@ export function filename(value: string): string {
     check(stem && !['.', '..'].includes(stem) && !/[\/\\<>:"|?*\[\]#^\x00-\x1f\x7f]/.test(basename), 'filename_invalid', 'Filename contains a forbidden character.');
     check(!folded.endsWith('.index.md') && !folded.includes('<!--') && !folded.includes('-->'), 'reserved_path', 'Artifact filename is reserved.', {}, EXIT.conflict);
     check(!/^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(normalizedKey(stem)), 'filename_invalid', 'Filename is reserved by supported filesystems.');
-    check(codepoints(basename) <= 120 && Buffer.byteLength(basename) <= 240, 'filename_required', 'Filename exceeds the v1 limit.');
+    check(codepoints(basename) <= 120 && Buffer.byteLength(basename) <= 240, 'filename_required', 'Filename is too long (maximum 120 characters and 240 bytes).');
     return basename;
 }
 export function naturalFilename(title: string): string { const stem = nfc(title.trim()).replace(nonFilename, '-').replace(/^[-._]+|[-._]+$/g, ''); check(stem, 'filename_required', 'Title cannot produce a safe filename.'); return filename(stem + '.md'); }

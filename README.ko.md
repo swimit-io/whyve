@@ -33,7 +33,7 @@ claude plugin marketplace add https://github.com/swimit-io/whyve.git --scope use
 claude plugin install whyve@whyve --scope user
 ```
 
-설치한 뒤 호스트를 다시 불러오고 프로젝트에서 `$whyve:init`을 실행하세요.
+설치한 뒤 Codex나 Claude Code를 다시 시작하고, 프로젝트에서 `$whyve:init`(Codex) 또는 `/whyve:init`(Claude Code)을 실행하세요.
 
 <!-- DEMO -->
 <p align="center">
@@ -77,7 +77,7 @@ claude-mem이나 Claude Code 내장 auto memory 같은 도구는 세션에서 �
 
 ## 사용법
 
-프로젝트에서 `$whyve:init`을 실행해 무엇을 어떻게 기록할지 고릅니다. init은 이미 설치한 플러그인을 프로젝트에 맞게 설정할 뿐, 새로 설치하지는 않습니다.
+프로젝트에서 `$whyve:init`(Codex) 또는 `/whyve:init`(Claude Code)을 실행해 무엇을 어떻게 기록할지 고릅니다. init은 이미 설치한 플러그인을 프로젝트에 맞게 설정할 뿐, 새로 설치하지는 않습니다.
 
 | 설정 | 선택 |
 |---|---|
@@ -122,7 +122,7 @@ Whyve가 기록을 확인해 주고, 저장된 이유를 꺼내고, 새 아이�
 
 ## Whyve로 만든 제품
 
-[Howse](https://howse.swimit.io/)는 Codex와 Claude Code를 내 Mac에서 한 팀으로 움직이게 하는 앱입니다. Whyve가 들어 있어서 한 에이전트가 정한 결정을 다음 에이전트가 이어받습니다.
+[Howse](https://howse.swimit.io/)는 Codex와 Claude Code를 내 Mac이나 Windows PC(베타)에서 한 팀으로 움직이게 하는 앱입니다. Whyve가 들어 있어서 한 에이전트가 정한 결정을 다음 에이전트가 이어받습니다.
 
 *이름의 뜻:* Whyve는 *why*(왜)와 *weave*(엮다)를 합친 이름입니다. 선택의 이유를 한 올로 엮어 세션에서 세션으로 이어 갑니다.
 

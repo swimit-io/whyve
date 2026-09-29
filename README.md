@@ -4,6 +4,8 @@
 
 <p align="center"><strong>Keep the thread.</strong></p>
 
+<p align="center"><sub><em>The name:</em> Whyve is <em>why</em> + <em>weave</em>. It weaves the reasons behind your choices into a thread that carries across sessions.</sub></p>
+
 <p align="center">
 Durable project context for AI coding agents: decisions and their reasons, kept across sessions.
 </p>
@@ -28,7 +30,7 @@ claude plugin marketplace add https://github.com/swimit-io/whyve.git --scope use
 claude plugin install whyve@whyve --scope user
 ```
 
-Then reload the host and run `$whyve:init` in your project.
+Then restart Codex or Claude Code and run `$whyve:init` (Codex) or `/whyve:init` (Claude Code) in your project.
 
 <!-- DEMO -->
 <p align="center">
@@ -38,9 +40,9 @@ Then reload the host and run `$whyve:init` in your project.
 
 ## Not a memory plugin
 
-claude-mem remembers what happened. Whyve keeps why you decided.
+claude-mem remembers what happened. Whyve remembers why you decided.
 
-Memory tools such as claude-mem and Claude Code's built-in auto memory capture what went on in your sessions. Whyve keeps a smaller set: your decisions, the assumptions, terms and intent behind them, their reasons, and what replaced what. When a later session suggests reversing a decision, Whyve puts the recorded decision and its reason next to the suggestion. Nothing changes until you decide.
+Memory tools such as claude-mem and Claude Code's built-in auto memory capture what went on in your sessions. Whyve keeps a smaller set: your decisions, the reasons and assumptions behind them, the terms and goals they depend on, and which decision replaced which. When a later session suggests reversing a decision, Whyve puts the recorded decision and its reason next to the suggestion. Nothing changes until you decide.
 
 Use both. Whyve does not replace your memory tool.
 
@@ -49,8 +51,8 @@ Use both. Whyve does not replace your memory tool.
 Every new session starts without the last one's reasoning. Whyve carries it over.
 
 - **Decisions and their reasons outlast the session.** Ask "why did we choose this?" next week and the agent answers from the record.
-- **Changing course starts from the recorded reason.** When someone proposes undoing a decision, the original reason is on the table before anything is replaced.
-- **Everything is a file you can open.** Records are Markdown files in your project's `context/` folder. Git is optional. There is no server, database or API key.
+- **Changing course starts with the original reason.** When someone proposes undoing a decision, the original reason is on the table before anything is replaced.
+- **Everything is a file you can open.** Records are Markdown files in your project's `context/` folder. Git is optional. There is no server, database, or API key.
 
 ## What a record looks like
 
@@ -72,25 +74,26 @@ Validate the first-use flow quickly.
 
 ## How to use it
 
-Run `$whyve:init` in your project and choose what to record and how. Init sets up the plugin you already installed; it does not install anything.
+Run `$whyve:init` (Codex) or `/whyve:init` (Claude Code) in your project and choose what to record and how. `init` configures the plugin you already installed; it does not install anything.
 
 | Setting | Choices |
 |---|---|
 | What to record | Decision, Assumption, Term, Intent, Document |
-| Always available | Observation, Snapshot, Archive |
 | Recording mode | `explicit`, `auto`, `adaptive` |
 
-A fresh setup starts with Decision and `explicit`. You can run init again to change these; turning something off keeps the records you already have.
+Observation, Snapshot, and Archive are always available.
+
+A fresh setup starts with Decision and `explicit`. You can rerun `init` to change these; turning something off keeps the records you already have.
 
 The recording modes differ in when Whyve asks you:
 
-- **explicit**: Records only a clear decision or a "remember this"; asks when the meaning or scope is unclear.
+- **explicit**: Records only clear decisions and explicit "remember this" requests; asks when the meaning or scope is unclear.
 - **auto**: Records whatever qualifies, without asking each time.
-- **adaptive**: Records directly and asks only when confirmation matters.
+- **adaptive**: Records on its own and asks only when a confirmation really matters.
 
-`auto` does not record whole transcripts. In every mode, a proposal stays a proposal: the model cannot invent a decision for you or record its own preference as yours. The recording mode also doesn't give the agent permission to change unrelated code or take outside actions.
+`auto` does not record whole transcripts. In every mode, a proposal stays a proposal: the model cannot invent a decision for you or record its own preference as yours. The recording mode also doesn't give the agent permission to change unrelated code or take actions outside your project.
 
-Talk to your agent normally: "Why did we choose this?", "Keep this decision", "Save where we stopped." Whyve reads only the records that matter, not the whole folder.
+Talk to your agent normally: "Why did we choose this?", "Keep this decision", "Save where we left off." Whyve reads only the records that matter, not the whole folder.
 
 ### Try one decision across two sessions
 
@@ -107,9 +110,9 @@ With a fresh setup (Decision + `explicit`), try these messages in your project.
 
 3. Then explore a possible change:
 
-   > What about including Excel in this trial too? I haven't decided to change the decision yet.
+   > What about including Excel in this trial too? I'm just exploring. I'm not changing the decision yet.
 
-You should see Whyve confirm the record, then recall the stored reason, then compare the new idea with the existing decision. The last message only asks for a comparison, so the decision stays as it is, in `auto` and `adaptive` too.
+You should see Whyve confirm the record, then recall the stored reason, then compare the new idea with the existing decision. The last message only asks for a comparison, so the decision stays unchanged, even in `auto` or `adaptive` mode.
 
 ## What has been validated
 
@@ -117,15 +120,12 @@ The repository's [tests](https://github.com/swimit-io/whyve/tree/main/tests/node
 
 ## Built with Whyve
 
-[Howse](https://howse.swimit.io/) runs Codex and Claude Code as one team on your Mac, with Whyve built in so decisions carry from one agent to the next.
-
-*The name:* Whyve is *why* + *weave*. It weaves the reasons behind your choices into a thread that carries across sessions.
-
+[Howse](https://howse.swimit.io/) runs Codex and Claude Code as one team on your Mac or Windows PC (beta), with Whyve built in so decisions carry from one agent to the next.
 ## Roadmap
 
-**Whyve Cloud**: the same context across your devices, without Git. In preparation. Whyve itself stays open source and local.
+**Whyve Cloud**: the same context across your devices, without Git. Coming soon. Whyve itself stays open source and local.
 
-Whyve is open source under Apache-2.0 and is built and maintained by one person. Bug reports are welcome as [issues](https://github.com/swimit-io/whyve/issues); pull requests aren't being taken right now. Security issues: see [SECURITY.md](SECURITY.md).
+Whyve is open source under Apache-2.0 and is built and maintained by one person. Bug reports are welcome as [issues](https://github.com/swimit-io/whyve/issues); I'm not accepting pull requests at this time. Security issues: see [SECURITY.md](SECURITY.md).
 
 ## For developers
 

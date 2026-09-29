@@ -1,9 +1,9 @@
 ---
 name: observation
-description: Preserve reusable facts, evidence, or lessons as non-authoritative OBS context, including its lifecycle operations.
+description: Record reusable facts, evidence, or lessons as non-binding observations, and update, retire, or discard them.
 ---
 
-Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. No Python, global install, `--help` or reading plugin scripts.
+Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. Don't use Python, a global install, or `--help`, and don't read plugin scripts.
 
 # Observation
 

@@ -36,7 +36,7 @@ export function renderRegistry(kinds: Kind[]): string {
 export interface Registry { kinds: Kind[]; outdated: Kind[]; digest: string }
 export function readRegistry(root: string): Registry {
     const raw = bytes(root, REGISTRY, 1024 * 1024);
-    check(raw, 'registry_missing', 'Owner registry is missing; run whyve refresh --fix.', { path: REGISTRY }, EXIT.integrity);
+    check(raw, 'registry_missing', 'Owner registry is missing. Run refresh --fix (whyve refresh --fix, or context_cli.mjs refresh --fix in the plugin).', { path: REGISTRY }, EXIT.integrity);
     const value = strictJson(utf8(raw), 'registry_invalid');
     check(value.schema === 'whyve-owner-registry/v1' && value.protocol === MODEL.protocol && value.areas && typeof value.areas === 'object', 'registry_invalid', 'Owner registry is invalid.', {}, EXIT.integrity);
     const kinds = Object.keys(value.areas);
@@ -49,7 +49,7 @@ export function readProjections(root: string): string[] {
     if (!raw) return [];
     const value = strictJson(utf8(raw), 'projections_invalid');
     check(value.schema === 'whyve-index-projections/v1' && Array.isArray(value.keys) && value.keys.length <= 8 && value.keys.every((k: unknown) => typeof k === 'string' && isHostKey(k)) && new Set(value.keys).size === value.keys.length && Object.keys(value).length === 2,
-        'projections_invalid', 'index-projections.json lists at most eight namespace.name keys.', {}, EXIT.integrity);
+        'projections_invalid', 'index-projections.json must list at most eight unique namespace.name keys.', {}, EXIT.integrity);
     return [...value.keys].sort(compareText);
 }
 export function renderRoot(kinds: Kind[]): string {
@@ -142,7 +142,7 @@ export class VaultView {
     /** `repair` reads a v3 vault whose registry or root index is damaged, using the given kinds. */
     constructor(readonly root: string, repair?: { kinds: Kind[] }) {
         this.format = detectFormat(root);
-        check(this.format !== 'none', 'context_root_missing', 'Context root index is missing; run whyve init.', { path: ROOT_INDEX }, EXIT.notFound);
+        check(this.format !== 'none', 'context_root_missing', 'Context root index is missing. Initialize Whyve first ($whyve:init in Codex, /whyve:init in Claude Code, or whyve init).', { path: ROOT_INDEX }, EXIT.notFound);
         if (this.format === 'v3' && repair) {
             this.kinds = [...repair.kinds].sort(compareText);
             this.registryDigest = null;
@@ -153,7 +153,7 @@ export class VaultView {
             this.outdated = registry.outdated;
             this.registryDigest = registry.digest;
             const listed = rootKinds(readText(root, ROOT_INDEX));
-            check(listed.join() === this.kinds.join(), 'index_stale', 'Root index areas differ from the owner registry; run whyve refresh --fix.', {}, EXIT.integrity);
+            check(listed.join() === this.kinds.join(), 'index_stale', 'Root index areas differ from the owner registry. Run refresh --fix (whyve refresh --fix, or context_cli.mjs refresh --fix in the plugin).', {}, EXIT.integrity);
         }
         else {
             this.legacy = legacyAreas(root);
@@ -237,10 +237,10 @@ export function validateRelations(records: Loaded[]): void {
             if (s.relation === 'supersedes') check(byId.get(s.ref) && successorOf(byId.get(s.ref)!) === r.id, 'lifecycle_invalid', 'Predecessor edge is not reciprocal.', { id: r.id, target: s.ref }, EXIT.integrity);
         }
         const successor = successorOf(r);
-        check(r.record.sources.filter(s => s.relation === 'superseded-by').length <= 1, 'lifecycle_invalid', 'A record has at most one successor.', { id: r.id }, EXIT.integrity);
-        if (r.state === 'history' && r.record.headers.lifecycle_reason === 'superseded') check(successor, 'lifecycle_invalid', 'A superseded record names its successor.', { id: r.id }, EXIT.integrity);
+        check(r.record.sources.filter(s => s.relation === 'superseded-by').length <= 1, 'lifecycle_invalid', 'A record must have at most one successor.', { id: r.id }, EXIT.integrity);
+        if (r.state === 'history' && r.record.headers.lifecycle_reason === 'superseded') check(successor, 'lifecycle_invalid', 'A superseded record must name its successor.', { id: r.id }, EXIT.integrity);
         if (successor) {
-            check(r.state === 'history', 'lifecycle_invalid', 'Only history records name a successor.', { id: r.id }, EXIT.integrity);
+            check(r.state === 'history', 'lifecycle_invalid', 'Only history records can name a successor.', { id: r.id }, EXIT.integrity);
             check(byId.get(successor)?.record.sources.some(s => s.relation === 'supersedes' && s.ref === r.id), 'lifecycle_invalid', 'Successor edge is not reciprocal.', { id: r.id }, EXIT.integrity);
         }
     }

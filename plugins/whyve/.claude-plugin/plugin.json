@@ -1,7 +1,7 @@
 {
   "name": "whyve",
   "version": "0.3.0",
-  "description": "Keep the thread: durable project context with project-selected features and recording policies.",
+  "description": "Keep project decisions, their reasons, and other project context across AI coding sessions, stored as Markdown files in your project.",
   "author": {
     "name": "Jinwuk Lee",
     "email": "jeis.jw@gmail.com",

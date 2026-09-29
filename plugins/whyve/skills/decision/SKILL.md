@@ -1,9 +1,9 @@
 ---
 name: decision
-description: On a user choice signal, recall Current DEC bodies, report conflicts, and record only explicit user choices (capture, supersede, withdraw).
+description: When the user makes or questions a choice, recall current decisions, report conflicts, and record only the user's explicit choices (new, replaced, or withdrawn).
 ---
 
-Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. No Python, global install, `--help` or reading plugin scripts.
+Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. Don't use Python, a global install, or `--help`, and don't read plugin scripts.
 
 # Decision
 
@@ -23,7 +23,7 @@ Record fields: `scope` and `key` are required; one Current DEC per scope+key, an
 
    `list` filters exactly (`--key`, `--keyword`, `--text` substring of title or summary) and does not rank; check `coverage.complete` and `nextCursor`. An empty page is not proof of absence and does not justify a vault-wide rerun. If the scope is unknown, ask. For the same choice reuse the returned `scope` and `key`; never mint an alias key.
 3. Compare the actual `Decision`, `Rationale`, `Rejected alternatives` and non-empty `Revisit conditions`. Proceed silently when compatible.
-4. On a conflict or changed reason, before the main answer quote those sections and state the revisit condition verbatim as `satisfied`, `no evidence` or `ambiguous`. `satisfied` needs present facts that establish the stored condition; the requested action itself is not evidence. Hold the affected action (no code, file or command change that advances it) and ask one binary question: keep (the action is not performed) or supersede (proceed only after that explicit choice). A satisfied condition permits reassessment, not implementation. The explicit choice settles the payload and authorizes recording without a second storage question.
+4. On a conflict or changed reason, before the main answer quote those sections and quote the revisit condition and label it with exactly one of `satisfied`, `no evidence`, or `ambiguous`. `satisfied` needs present facts that establish the stored condition; the requested action itself is not evidence. Hold the affected action (no code, file or command change that advances it) and ask one binary question: keep (the action is not performed) or supersede (proceed only after that explicit choice). A satisfied condition permits reassessment, not implementation. The explicit choice settles the payload and authorizes recording without a second storage question.
 5. Finish the primary request, then propose mature choices once per milestone; do not re-propose dismissed or deferred ones without new evidence.
 
 History rows are `doNotFollow: true`; `read` shows `lifecycle.successor`. Never follow history as the active choice.
@@ -57,7 +57,7 @@ A receipt with `status: "applied"` confirms the write; do not re-read. `needs_re
 
 ## Supersede
 
-After the user explicitly chose the new option, compare the successor with the predecessor:
+After the user has explicitly chosen the new option, compare the successor with the predecessor:
 
 ```bash
 cat > /tmp/whyve-dec-compare.json <<'EOF'

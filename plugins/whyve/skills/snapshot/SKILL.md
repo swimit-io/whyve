@@ -1,9 +1,9 @@
 ---
 name: snapshot
-description: Save, update, load, or discard a SNAP handoff for unfinished work when requested or permitted by project recording policy; load it when a session resumes earlier work.
+description: Save, update, or discard a handoff snapshot of unfinished work when asked or when the project's recording mode allows it, and load it when a session picks up earlier work.
 ---
 
-Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. No Python, global install, `--help` or reading plugin scripts.
+Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. Don't use Python, a global install, or `--help`, and don't read plugin scripts.
 
 # Snapshot
 

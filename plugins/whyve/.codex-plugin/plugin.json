@@ -1,7 +1,7 @@
 {
   "name": "whyve",
   "version": "0.3.0",
-  "description": "Keep the thread: durable project context with project-selected features and recording policies.",
+  "description": "Keep project decisions, their reasons, and other project context across AI coding sessions, stored as Markdown files in your project.",
   "author": {
     "name": "Jinwuk Lee",
     "email": "jeis.jw@gmail.com",
@@ -14,8 +14,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Whyve",
-    "shortDescription": "Keep project decisions and why",
-    "longDescription": "Keep project decisions and their reasons across AI coding sessions. Whyve stores decisions, observations, assumptions, intent, terms and documents as Markdown files in your project's context folder. Set up each project with $whyve:init, choose which features to use and select explicit, automatic or adaptive recording. Recall a past rationale or compare a proposed change with the current decision. Requires Node.js 20.20.0 or newer. No Whyve account or remote service is required; your AI host processes context that the agent reads.",
+    "shortDescription": "Remember project decisions and the reasons behind them",
+    "longDescription": "Keep project decisions and their reasons across AI coding sessions. Whyve stores decisions, observations, assumptions, intents, terms, and documents as Markdown files in your project's context folder. Set up each project with $whyve:init: choose which record types to use and whether recording is explicit, automatic, or adaptive. Ask for a past rationale, or compare a proposed change with the current decision. Requires Node.js 20.20.0 or newer. No Whyve account or remote service is required. Anything the agent reads is processed by your AI host.",
     "developerName": "Jinwuk Lee",
     "category": "Productivity",
     "capabilities": [

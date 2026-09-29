@@ -65,14 +65,14 @@ function validateValue(kind: Kind | null, s: HeaderSpec, value: unknown, headers
 }
 function validateHostHeaders(headers: Record<string, HeaderValue>): void {
     const keys = Object.keys(headers).filter(k => !RESERVED_KEY.test(k));
-    check(keys.length <= LIMITS.custom_header_keys, 'custom_header_invalid', `At most ${LIMITS.custom_header_keys} host headers.`, {}, EXIT.usage);
+    check(keys.length <= LIMITS.custom_header_keys, 'custom_header_invalid', `Too many host headers (maximum ${LIMITS.custom_header_keys}).`, {}, EXIT.usage);
     let total = 0;
     for (const key of keys) {
-        check(isHostKey(key), 'custom_header_invalid', 'Host headers use namespace.name with [a-z][a-z0-9_-]* parts, at most 80 characters.', { key });
+        check(isHostKey(key), 'custom_header_invalid', 'Host header keys must be namespace.name, with each part matching [a-z][a-z0-9_-]*, and at most 80 characters.', { key });
         check(!key.startsWith('whyve.'), 'custom_header_invalid', 'The whyve. namespace is reserved.', { key });
         const value = headers[key], list = Array.isArray(value) ? value : [value];
         check(list.every(v => typeof v === 'string' && oneLine(v) && utf8Bytes(v) <= LIMITS.custom_value_bytes) && (!Array.isArray(value) || value.length <= LIMITS.custom_list_items), 'custom_header_invalid',
-            `Host header values are single-line strings of at most ${LIMITS.custom_value_bytes} bytes; lists hold at most ${LIMITS.custom_list_items} items.`, { key });
+            `Host header values must be single-line strings of at most ${LIMITS.custom_value_bytes} bytes, and lists can hold at most ${LIMITS.custom_list_items} items.`, { key });
         total += utf8Bytes(`${key}: ${JSON.stringify(value)}\n`);
     }
     check(total <= LIMITS.custom_header_bytes, 'custom_header_invalid', `Host headers exceed ${LIMITS.custom_header_bytes} bytes.`, { bytes: total });
@@ -82,7 +82,7 @@ export function validateHeaders(headers: Record<string, HeaderValue>): Kind {
     check(isKind(kind), 'schema_invalid', 'Header kind is missing or unknown.', { field: 'kind' });
     const specs = headerSpecs(kind), known = new Set(specs.map(s => s.key));
     for (const key of Object.keys(headers))
-        check(known.has(key) || !RESERVED_KEY.test(key), 'header_unknown', `Header ${key} is not part of ${kind} records; host data uses namespace.name keys.`, { key });
+        check(known.has(key) || !RESERVED_KEY.test(key), 'header_unknown', `Header ${key} is not defined for ${kind} records; host data must use namespace.name keys.`, { key });
     const history = headers.state === 'history', keyRule = spec(kind).key, lifecycle = ['retired_at', 'lifecycle_reason'];
     for (const s of specs) {
         const present = Object.hasOwn(headers, s.key);
@@ -112,7 +112,7 @@ export function renderSource(entry: SourceEntry): string {
 }
 export function parseSource(line: string): SourceEntry {
     const match = /^- ([a-z][a-z0-9_:-]*): (.*)$/.exec(line);
-    check(match, 'sources_invalid', 'A Sources line is `- relation: ref` with an optional ` — note`.', { line: line.slice(0, 200) });
+    check(match, 'sources_invalid', 'A Sources line must be `- relation: ref`, optionally followed by ` — note`.', { line: line.slice(0, 200) });
     const [, relation, rest] = match;
     let ref = '', note: string | undefined, i = 0;
     for (; i < rest.length; i++) {
@@ -127,10 +127,10 @@ export function parseSource(line: string): SourceEntry {
 }
 export function validateSource(entry: SourceEntry): void {
     check(entry && typeof entry === 'object' && typeof entry.relation === 'string' && RELATION.test(entry.relation) && entry.relation.length <= 80, 'sources_invalid', 'Source relation must be [a-z][a-z0-9_-]* with an optional :kind suffix.', { relation: entry?.relation });
-    check(typeof entry.ref === 'string' && entry.ref.trim() === entry.ref && entry.ref.length > 0 && oneLine(entry.ref) && codepoints(entry.ref) <= LIMITS.source_ref_codepoints, 'sources_invalid', `Source refs are non-empty trimmed single lines of at most ${LIMITS.source_ref_codepoints} codepoints.`, { relation: entry.relation });
-    check(entry.note === undefined || (typeof entry.note === 'string' && entry.note.length > 0 && entry.note.trim() === entry.note && oneLine(entry.note) && codepoints(entry.note) <= LIMITS.source_note_codepoints), 'sources_invalid', `Source notes are trimmed single lines of at most ${LIMITS.source_note_codepoints} codepoints.`, { relation: entry.relation });
+    check(typeof entry.ref === 'string' && entry.ref.trim() === entry.ref && entry.ref.length > 0 && oneLine(entry.ref) && codepoints(entry.ref) <= LIMITS.source_ref_codepoints, 'sources_invalid', `A source ref must be a single non-empty line without leading or trailing spaces, at most ${LIMITS.source_ref_codepoints} codepoints.`, { relation: entry.relation });
+    check(entry.note === undefined || (typeof entry.note === 'string' && entry.note.length > 0 && entry.note.trim() === entry.note && oneLine(entry.note) && codepoints(entry.note) <= LIMITS.source_note_codepoints), 'sources_invalid', `A source note must be a single non-empty line without leading or trailing spaces, at most ${LIMITS.source_note_codepoints} codepoints.`, { relation: entry.relation });
     const extra = Object.keys(entry).filter(k => !['relation', 'ref', 'note'].includes(k));
-    check(!extra.length, 'sources_invalid', 'Source entries have relation, ref and note only.', { fields: extra });
+    check(!extra.length, 'sources_invalid', 'A source entry can contain only relation, ref, and note.', { fields: extra });
     const typed = entry.relation.split(':')[1];
     if (typed) check(isKind(typed), 'sources_invalid', 'Typed relation suffix must be a record kind.', { relation: entry.relation });
     if (['supersedes', 'superseded-by'].includes(entry.relation) || typed) requireId(entry.ref, entry.relation);
@@ -141,7 +141,7 @@ export const sameSource = (a: SourceEntry, b: SourceEntry) => a.relation === b.r
 interface HeaderBlock { headers: Record<string, HeaderValue>; lines: string[]; closing: number }
 export function parseHeaderBlock(text: string): HeaderBlock {
     check(!text.startsWith('﻿'), 'header_invalid', 'UTF-8 BOM is not supported.');
-    check(!text.includes('\r'), 'header_invalid', 'Stored records use LF newlines.');
+    check(!text.includes('\r'), 'header_invalid', 'Stored records must use LF newlines.');
     const lines = text.split('\n'), closing = lines.indexOf('---', 1);
     check(lines[0] === '---' && closing > 0, 'header_invalid', 'Header delimiters are required.');
     check(utf8Bytes(lines.slice(0, closing + 1).join('\n') + '\n') <= LIMITS.header_bytes, 'header_too_large', `Header block exceeds ${LIMITS.header_bytes} bytes.`);
@@ -151,7 +151,7 @@ export function parseHeaderBlock(text: string): HeaderBlock {
         check(split > 0 && (RESERVED_KEY.test(key) || isHostKey(key)) && !Object.hasOwn(headers, key), 'header_invalid', 'Invalid or duplicate header key.', { key: key.slice(0, 100) });
         let value: unknown;
         try { value = JSON.parse(raw); } catch { fail('header_invalid', 'Header value must be compact JSON.', { key }); }
-        check((typeof value === 'string' || (Array.isArray(value) && value.every(v => typeof v === 'string'))) && JSON.stringify(value) === raw, 'header_invalid', 'Header values are compact JSON strings or string arrays.', { key });
+        check((typeof value === 'string' || (Array.isArray(value) && value.every(v => typeof v === 'string'))) && JSON.stringify(value) === raw, 'header_invalid', 'Header values must be compact JSON strings or arrays of strings.', { key });
         Object.defineProperty(headers, key, { value, enumerable: true, writable: true, configurable: true });
     }
     return { headers, lines, closing };
@@ -163,7 +163,7 @@ function fenceToggle(line: string, fence: string | undefined): string | undefine
 function isSourcesTitle(title: string): boolean { return title === MODEL.sources_section.name || title === MODEL.sources_section.alias; }
 export function parseRecordText(text: string): StoredRecord {
     const { headers, lines, closing } = parseHeaderBlock(text), kind = validateHeaders(headers);
-    check(lines[closing + 1] === '' && lines.at(-1) === '', 'section_schema_error', 'A blank line follows the header and the file ends with a newline.');
+    check(lines[closing + 1] === '' && lines.at(-1) === '', 'section_schema_error', 'A blank line must follow the header, and the file must end with a newline.');
     const sections: Section[] = [], sources: SourceEntry[] = [], delimiter = headers.section_delimiter as string | undefined;
     let i = closing + 2, inSources = false;
     const addSection = (title: string, body: string) => {
@@ -177,7 +177,7 @@ export function parseRecordText(text: string): StoredRecord {
         while (i < end) {
             if (lines[i] === '') { i++; continue; }
             const title = /^## (.+)$/.exec(lines[i])?.[1];
-            check(title, 'section_schema_error', 'Framed records contain only framed sections and Sources.', { line: i + 1 });
+            check(title, 'section_schema_error', 'Framed records must contain only framed sections and Sources.', { line: i + 1 });
             if (isSourcesTitle(title)) { inSources = true; i++; break; }
             check(lines[i + 1] === '' && lines[i + 2] === begin, 'section_schema_error', 'Framed section begin marker is missing.', { section: title });
             const close = lines.indexOf(stop, i + 3);
@@ -208,7 +208,7 @@ export function parseRecordText(text: string): StoredRecord {
     if (inSources)
         for (; i < end; i++) {
             if (!lines[i].trim()) continue;
-            check(!lines[i].startsWith('## '), 'sources_not_last', 'Sources is the last section.', { line: i + 1 });
+            check(!lines[i].startsWith('## '), 'sources_not_last', 'Sources must be the last section.', { line: i + 1 });
             sources.push(parseSource(lines[i]));
         }
     const firstRegistered = sections.find(s => s.name);
@@ -219,11 +219,11 @@ export function parseRecordText(text: string): StoredRecord {
 export function validateBody(record: StoredRecord): void {
     const kind = kindOf(record), primary = primarySection(kind);
     check(substantive(sectionText(record, primary.name)), 'section_schema_error', 'The primary section is missing or empty.', { section: primary.name });
-    for (const s of record.sections) check(typeof s.text === 'string' && !s.text.includes('\r'), 'section_schema_error', 'Sections use LF newlines.', { section: s.title });
+    for (const s of record.sections) check(typeof s.text === 'string' && !s.text.includes('\r'), 'section_schema_error', 'Sections must use LF newlines.', { section: s.title });
     const bytes = bodyBytes(record);
     if (kind === 'archive') check(utf8Bytes(sectionText(record, 'Content')) <= LIMITS.archive_bytes, 'archive_too_large', `ARCHIVE Content exceeds ${LIMITS.archive_bytes} bytes.`, { bytes: utf8Bytes(sectionText(record, 'Content')) }, EXIT.conflict);
     else check(bytes <= LIMITS.body_bytes, 'body_too_large', `Record body exceeds ${LIMITS.body_bytes} bytes; store the original as ARCHIVE.`, { bytes }, EXIT.conflict);
-    check(record.sources.length <= LIMITS.source_entries, 'sources_invalid', `At most ${LIMITS.source_entries} Sources entries.`);
+    check(record.sources.length <= LIMITS.source_entries, 'sources_invalid', `Too many Sources entries (maximum ${LIMITS.source_entries}).`);
     record.sources.forEach(validateSource);
     if (kind === 'archive' && typeof record.headers.content_digest === 'string')
         check(record.headers.content_digest === sha256(Buffer.from(sectionText(record, 'Content'), 'utf8')), 'archive_digest_mismatch', 'ARCHIVE content_digest differs from Content.', {}, EXIT.integrity);
@@ -296,7 +296,7 @@ export function bodyText(value: BodyValue, field: string): string {
     }
     check(typeof value === 'string', 'schema_invalid', `${field} must be text or a list of text.`, { field });
     const text = value.replace(/\r\n/g, '\n');
-    check(!text.includes('\r'), 'schema_invalid', 'Text supports LF or CRLF newlines.', { field });
+    check(!text.includes('\r'), 'schema_invalid', 'Text must use LF or CRLF newlines.', { field });
     return text;
 }
 export function deriveSummary(text: string, title: string): string {
@@ -322,7 +322,7 @@ export function applyBody(record: StoredRecord, kind: Kind, body: Record<string,
                 const current = record.headers[field], next = value === null ? undefined : value;
                 const extends_ = Array.isArray(current) && Array.isArray(next) && current.every(item => next.includes(item));
                 const later = field === 'verified_at' && typeof current === 'string' && typeof next === 'string' && Date.parse(next) >= Date.parse(current);
-                check(current === undefined || JSON.stringify(current) === JSON.stringify(next) || extends_ || later, 'immutable_field', 'This kind only fills or extends this field; other changes require supersede.', { field }, EXIT.conflict);
+                check(current === undefined || JSON.stringify(current) === JSON.stringify(next) || extends_ || later, 'immutable_field', 'For this kind, this field can only be filled or extended; other changes require supersede.', { field }, EXIT.conflict);
             }
             if (value === null || (Array.isArray(value) && !value.length)) { check(header.class !== 'H', 'schema_invalid', `${field} is required.`, { field }); delete record.headers[field]; }
             else record.headers[field] = Array.isArray(value) ? value.map(v => nfc(v)) : value as string;
@@ -333,7 +333,7 @@ export function applyBody(record: StoredRecord, kind: Kind, body: Record<string,
         if (existing && existing.text === text) continue; // restating a section unchanged is not a change
         if (mode === 'supplement') {
             check(s !== sections[0], 'immutable_primary', 'Primary meaning changes require supersede.', { section: s.name }, EXIT.conflict);
-            check(!existing || !existing.text.trim() || text.startsWith(existing.text), 'immutable_section', 'This kind only fills an empty section or extends it; other changes require supersede.', { section: s.name }, EXIT.conflict);
+            check(!existing || !existing.text.trim() || text.startsWith(existing.text), 'immutable_section', 'For this kind, a section can only be filled or extended; other changes require supersede.', { section: s.name }, EXIT.conflict);
         }
         if (!text.trim()) {
             check(!s.required, 'section_schema_error', `${s.name} is required.`, { section: s.name });
@@ -363,9 +363,9 @@ export function recordFromInput(input: RecordInput, options: BuildOptions): Stor
     else if (s.key === 'derived') {
         check(typeof headers.term === 'string', 'schema_invalid', 'TERM requires body.term.', { field: 'term' });
         headers.key = canonicalKey(headers.term as string);
-        check(input.key === undefined || canonicalKey(input.key) === headers.key, 'key_invalid', 'TERM key is derived from term.');
+        check(input.key === undefined || canonicalKey(input.key) === headers.key, 'key_invalid', 'Omit the TERM key or make it match the key derived from term.');
     }
-    else check(input.key === undefined, 'key_invalid', `${kind} records have no key.`);
+    else check(input.key === undefined, 'key_invalid', `${kind} records do not take a key; omit key.`);
     if (input.keywords?.length) headers.keywords = input.keywords;
     if (input.tags?.length) headers.tags = input.tags;
     headers.created_at = options.now;
@@ -377,12 +377,12 @@ export function recordFromInput(input: RecordInput, options: BuildOptions): Stor
     if (kind === 'assumption') headers.assumption_status = 'unverified';
     if (kind === 'archive') headers.content_digest = sha256(Buffer.from(primary, 'utf8'));
     for (const [key, value] of Object.entries(input.headers ?? {})) {
-        check(!RESERVED_KEY.test(key), 'custom_header_invalid', 'Host headers use namespace.name keys.', { key });
+        check(!RESERVED_KEY.test(key), 'custom_header_invalid', 'Host headers must use namespace.name keys.', { key });
         headers[key] = value;
     }
     for (const entry of input.sources ?? []) {
         validateSource(entry);
-        check(!MANAGED_RELATIONS.has(entry.relation), 'sources_invalid', `${entry.relation} entries are written by the core.`, { relation: entry.relation });
+        check(!MANAGED_RELATIONS.has(entry.relation), 'sources_invalid', `${entry.relation} entries are managed by Whyve and cannot be supplied.`, { relation: entry.relation });
         record.sources.push({ ...entry });
     }
     record.sources.push(...authorizationSources(options.authorization));

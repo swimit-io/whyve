@@ -119,13 +119,13 @@ function validateValue(kind, s, value, headers) {
 }
 function validateHostHeaders(headers) {
     const keys = Object.keys(headers).filter(k => !RESERVED_KEY.test(k));
-    (0, common_1.check)(keys.length <= model_1.LIMITS.custom_header_keys, 'custom_header_invalid', `At most ${model_1.LIMITS.custom_header_keys} host headers.`, {}, common_1.EXIT.usage);
+    (0, common_1.check)(keys.length <= model_1.LIMITS.custom_header_keys, 'custom_header_invalid', `Too many host headers (maximum ${model_1.LIMITS.custom_header_keys}).`, {}, common_1.EXIT.usage);
     let total = 0;
     for (const key of keys) {
-        (0, common_1.check)((0, exports.isHostKey)(key), 'custom_header_invalid', 'Host headers use namespace.name with [a-z][a-z0-9_-]* parts, at most 80 characters.', { key });
+        (0, common_1.check)((0, exports.isHostKey)(key), 'custom_header_invalid', 'Host header keys must be namespace.name, with each part matching [a-z][a-z0-9_-]*, and at most 80 characters.', { key });
         (0, common_1.check)(!key.startsWith('whyve.'), 'custom_header_invalid', 'The whyve. namespace is reserved.', { key });
         const value = headers[key], list = Array.isArray(value) ? value : [value];
-        (0, common_1.check)(list.every(v => typeof v === 'string' && oneLine(v) && utf8Bytes(v) <= model_1.LIMITS.custom_value_bytes) && (!Array.isArray(value) || value.length <= model_1.LIMITS.custom_list_items), 'custom_header_invalid', `Host header values are single-line strings of at most ${model_1.LIMITS.custom_value_bytes} bytes; lists hold at most ${model_1.LIMITS.custom_list_items} items.`, { key });
+        (0, common_1.check)(list.every(v => typeof v === 'string' && oneLine(v) && utf8Bytes(v) <= model_1.LIMITS.custom_value_bytes) && (!Array.isArray(value) || value.length <= model_1.LIMITS.custom_list_items), 'custom_header_invalid', `Host header values must be single-line strings of at most ${model_1.LIMITS.custom_value_bytes} bytes, and lists can hold at most ${model_1.LIMITS.custom_list_items} items.`, { key });
         total += utf8Bytes(`${key}: ${JSON.stringify(value)}\n`);
     }
     (0, common_1.check)(total <= model_1.LIMITS.custom_header_bytes, 'custom_header_invalid', `Host headers exceed ${model_1.LIMITS.custom_header_bytes} bytes.`, { bytes: total });
@@ -135,7 +135,7 @@ function validateHeaders(headers) {
     (0, common_1.check)((0, model_1.isKind)(kind), 'schema_invalid', 'Header kind is missing or unknown.', { field: 'kind' });
     const specs = headerSpecs(kind), known = new Set(specs.map(s => s.key));
     for (const key of Object.keys(headers))
-        (0, common_1.check)(known.has(key) || !RESERVED_KEY.test(key), 'header_unknown', `Header ${key} is not part of ${kind} records; host data uses namespace.name keys.`, { key });
+        (0, common_1.check)(known.has(key) || !RESERVED_KEY.test(key), 'header_unknown', `Header ${key} is not defined for ${kind} records; host data must use namespace.name keys.`, { key });
     const history = headers.state === 'history', keyRule = (0, model_1.spec)(kind).key, lifecycle = ['retired_at', 'lifecycle_reason'];
     for (const s of specs) {
         const present = Object.hasOwn(headers, s.key);
@@ -168,7 +168,7 @@ function renderSource(entry) {
 }
 function parseSource(line) {
     const match = /^- ([a-z][a-z0-9_:-]*): (.*)$/.exec(line);
-    (0, common_1.check)(match, 'sources_invalid', 'A Sources line is `- relation: ref` with an optional ` — note`.', { line: line.slice(0, 200) });
+    (0, common_1.check)(match, 'sources_invalid', 'A Sources line must be `- relation: ref`, optionally followed by ` — note`.', { line: line.slice(0, 200) });
     const [, relation, rest] = match;
     let ref = '', note, i = 0;
     for (; i < rest.length; i++) {
@@ -191,10 +191,10 @@ function parseSource(line) {
 }
 function validateSource(entry) {
     (0, common_1.check)(entry && typeof entry === 'object' && typeof entry.relation === 'string' && RELATION.test(entry.relation) && entry.relation.length <= 80, 'sources_invalid', 'Source relation must be [a-z][a-z0-9_-]* with an optional :kind suffix.', { relation: entry?.relation });
-    (0, common_1.check)(typeof entry.ref === 'string' && entry.ref.trim() === entry.ref && entry.ref.length > 0 && oneLine(entry.ref) && (0, common_1.codepoints)(entry.ref) <= model_1.LIMITS.source_ref_codepoints, 'sources_invalid', `Source refs are non-empty trimmed single lines of at most ${model_1.LIMITS.source_ref_codepoints} codepoints.`, { relation: entry.relation });
-    (0, common_1.check)(entry.note === undefined || (typeof entry.note === 'string' && entry.note.length > 0 && entry.note.trim() === entry.note && oneLine(entry.note) && (0, common_1.codepoints)(entry.note) <= model_1.LIMITS.source_note_codepoints), 'sources_invalid', `Source notes are trimmed single lines of at most ${model_1.LIMITS.source_note_codepoints} codepoints.`, { relation: entry.relation });
+    (0, common_1.check)(typeof entry.ref === 'string' && entry.ref.trim() === entry.ref && entry.ref.length > 0 && oneLine(entry.ref) && (0, common_1.codepoints)(entry.ref) <= model_1.LIMITS.source_ref_codepoints, 'sources_invalid', `A source ref must be a single non-empty line without leading or trailing spaces, at most ${model_1.LIMITS.source_ref_codepoints} codepoints.`, { relation: entry.relation });
+    (0, common_1.check)(entry.note === undefined || (typeof entry.note === 'string' && entry.note.length > 0 && entry.note.trim() === entry.note && oneLine(entry.note) && (0, common_1.codepoints)(entry.note) <= model_1.LIMITS.source_note_codepoints), 'sources_invalid', `A source note must be a single non-empty line without leading or trailing spaces, at most ${model_1.LIMITS.source_note_codepoints} codepoints.`, { relation: entry.relation });
     const extra = Object.keys(entry).filter(k => !['relation', 'ref', 'note'].includes(k));
-    (0, common_1.check)(!extra.length, 'sources_invalid', 'Source entries have relation, ref and note only.', { fields: extra });
+    (0, common_1.check)(!extra.length, 'sources_invalid', 'A source entry can contain only relation, ref, and note.', { fields: extra });
     const typed = entry.relation.split(':')[1];
     if (typed)
         (0, common_1.check)((0, model_1.isKind)(typed), 'sources_invalid', 'Typed relation suffix must be a record kind.', { relation: entry.relation });
@@ -205,7 +205,7 @@ const sameSource = (a, b) => a.relation === b.relation && a.ref === b.ref && (a.
 exports.sameSource = sameSource;
 function parseHeaderBlock(text) {
     (0, common_1.check)(!text.startsWith('﻿'), 'header_invalid', 'UTF-8 BOM is not supported.');
-    (0, common_1.check)(!text.includes('\r'), 'header_invalid', 'Stored records use LF newlines.');
+    (0, common_1.check)(!text.includes('\r'), 'header_invalid', 'Stored records must use LF newlines.');
     const lines = text.split('\n'), closing = lines.indexOf('---', 1);
     (0, common_1.check)(lines[0] === '---' && closing > 0, 'header_invalid', 'Header delimiters are required.');
     (0, common_1.check)(utf8Bytes(lines.slice(0, closing + 1).join('\n') + '\n') <= model_1.LIMITS.header_bytes, 'header_too_large', `Header block exceeds ${model_1.LIMITS.header_bytes} bytes.`);
@@ -220,7 +220,7 @@ function parseHeaderBlock(text) {
         catch {
             (0, common_1.fail)('header_invalid', 'Header value must be compact JSON.', { key });
         }
-        (0, common_1.check)((typeof value === 'string' || (Array.isArray(value) && value.every(v => typeof v === 'string'))) && JSON.stringify(value) === raw, 'header_invalid', 'Header values are compact JSON strings or string arrays.', { key });
+        (0, common_1.check)((typeof value === 'string' || (Array.isArray(value) && value.every(v => typeof v === 'string'))) && JSON.stringify(value) === raw, 'header_invalid', 'Header values must be compact JSON strings or arrays of strings.', { key });
         Object.defineProperty(headers, key, { value, enumerable: true, writable: true, configurable: true });
     }
     return { headers, lines, closing };
@@ -232,7 +232,7 @@ function fenceToggle(line, fence) {
 function isSourcesTitle(title) { return title === model_1.MODEL.sources_section.name || title === model_1.MODEL.sources_section.alias; }
 function parseRecordText(text) {
     const { headers, lines, closing } = parseHeaderBlock(text), kind = validateHeaders(headers);
-    (0, common_1.check)(lines[closing + 1] === '' && lines.at(-1) === '', 'section_schema_error', 'A blank line follows the header and the file ends with a newline.');
+    (0, common_1.check)(lines[closing + 1] === '' && lines.at(-1) === '', 'section_schema_error', 'A blank line must follow the header, and the file must end with a newline.');
     const sections = [], sources = [], delimiter = headers.section_delimiter;
     let i = closing + 2, inSources = false;
     const addSection = (title, body) => {
@@ -249,7 +249,7 @@ function parseRecordText(text) {
                 continue;
             }
             const title = /^## (.+)$/.exec(lines[i])?.[1];
-            (0, common_1.check)(title, 'section_schema_error', 'Framed records contain only framed sections and Sources.', { line: i + 1 });
+            (0, common_1.check)(title, 'section_schema_error', 'Framed records must contain only framed sections and Sources.', { line: i + 1 });
             if (isSourcesTitle(title)) {
                 inSources = true;
                 i++;
@@ -293,7 +293,7 @@ function parseRecordText(text) {
         for (; i < end; i++) {
             if (!lines[i].trim())
                 continue;
-            (0, common_1.check)(!lines[i].startsWith('## '), 'sources_not_last', 'Sources is the last section.', { line: i + 1 });
+            (0, common_1.check)(!lines[i].startsWith('## '), 'sources_not_last', 'Sources must be the last section.', { line: i + 1 });
             sources.push(parseSource(lines[i]));
         }
     const firstRegistered = sections.find(s => s.name);
@@ -305,13 +305,13 @@ function validateBody(record) {
     const kind = kindOf(record), primary = (0, exports.primarySection)(kind);
     (0, common_1.check)(substantive(sectionText(record, primary.name)), 'section_schema_error', 'The primary section is missing or empty.', { section: primary.name });
     for (const s of record.sections)
-        (0, common_1.check)(typeof s.text === 'string' && !s.text.includes('\r'), 'section_schema_error', 'Sections use LF newlines.', { section: s.title });
+        (0, common_1.check)(typeof s.text === 'string' && !s.text.includes('\r'), 'section_schema_error', 'Sections must use LF newlines.', { section: s.title });
     const bytes = bodyBytes(record);
     if (kind === 'archive')
         (0, common_1.check)(utf8Bytes(sectionText(record, 'Content')) <= model_1.LIMITS.archive_bytes, 'archive_too_large', `ARCHIVE Content exceeds ${model_1.LIMITS.archive_bytes} bytes.`, { bytes: utf8Bytes(sectionText(record, 'Content')) }, common_1.EXIT.conflict);
     else
         (0, common_1.check)(bytes <= model_1.LIMITS.body_bytes, 'body_too_large', `Record body exceeds ${model_1.LIMITS.body_bytes} bytes; store the original as ARCHIVE.`, { bytes }, common_1.EXIT.conflict);
-    (0, common_1.check)(record.sources.length <= model_1.LIMITS.source_entries, 'sources_invalid', `At most ${model_1.LIMITS.source_entries} Sources entries.`);
+    (0, common_1.check)(record.sources.length <= model_1.LIMITS.source_entries, 'sources_invalid', `Too many Sources entries (maximum ${model_1.LIMITS.source_entries}).`);
     record.sources.forEach(validateSource);
     if (kind === 'archive' && typeof record.headers.content_digest === 'string')
         (0, common_1.check)(record.headers.content_digest === (0, common_1.sha256)(Buffer.from(sectionText(record, 'Content'), 'utf8')), 'archive_digest_mismatch', 'ARCHIVE content_digest differs from Content.', {}, common_1.EXIT.integrity);
@@ -402,7 +402,7 @@ function bodyText(value, field) {
     }
     (0, common_1.check)(typeof value === 'string', 'schema_invalid', `${field} must be text or a list of text.`, { field });
     const text = value.replace(/\r\n/g, '\n');
-    (0, common_1.check)(!text.includes('\r'), 'schema_invalid', 'Text supports LF or CRLF newlines.', { field });
+    (0, common_1.check)(!text.includes('\r'), 'schema_invalid', 'Text must use LF or CRLF newlines.', { field });
     return text;
 }
 function deriveSummary(text, title) {
@@ -429,7 +429,7 @@ function applyBody(record, kind, body, mode) {
                 const current = record.headers[field], next = value === null ? undefined : value;
                 const extends_ = Array.isArray(current) && Array.isArray(next) && current.every(item => next.includes(item));
                 const later = field === 'verified_at' && typeof current === 'string' && typeof next === 'string' && Date.parse(next) >= Date.parse(current);
-                (0, common_1.check)(current === undefined || JSON.stringify(current) === JSON.stringify(next) || extends_ || later, 'immutable_field', 'This kind only fills or extends this field; other changes require supersede.', { field }, common_1.EXIT.conflict);
+                (0, common_1.check)(current === undefined || JSON.stringify(current) === JSON.stringify(next) || extends_ || later, 'immutable_field', 'For this kind, this field can only be filled or extended; other changes require supersede.', { field }, common_1.EXIT.conflict);
             }
             if (value === null || (Array.isArray(value) && !value.length)) {
                 (0, common_1.check)(header.class !== 'H', 'schema_invalid', `${field} is required.`, { field });
@@ -445,7 +445,7 @@ function applyBody(record, kind, body, mode) {
             continue; // restating a section unchanged is not a change
         if (mode === 'supplement') {
             (0, common_1.check)(s !== sections[0], 'immutable_primary', 'Primary meaning changes require supersede.', { section: s.name }, common_1.EXIT.conflict);
-            (0, common_1.check)(!existing || !existing.text.trim() || text.startsWith(existing.text), 'immutable_section', 'This kind only fills an empty section or extends it; other changes require supersede.', { section: s.name }, common_1.EXIT.conflict);
+            (0, common_1.check)(!existing || !existing.text.trim() || text.startsWith(existing.text), 'immutable_section', 'For this kind, a section can only be filled or extended; other changes require supersede.', { section: s.name }, common_1.EXIT.conflict);
         }
         if (!text.trim()) {
             (0, common_1.check)(!s.required, 'section_schema_error', `${s.name} is required.`, { section: s.name });
@@ -484,10 +484,10 @@ function recordFromInput(input, options) {
     else if (s.key === 'derived') {
         (0, common_1.check)(typeof headers.term === 'string', 'schema_invalid', 'TERM requires body.term.', { field: 'term' });
         headers.key = (0, common_1.canonicalKey)(headers.term);
-        (0, common_1.check)(input.key === undefined || (0, common_1.canonicalKey)(input.key) === headers.key, 'key_invalid', 'TERM key is derived from term.');
+        (0, common_1.check)(input.key === undefined || (0, common_1.canonicalKey)(input.key) === headers.key, 'key_invalid', 'Omit the TERM key or make it match the key derived from term.');
     }
     else
-        (0, common_1.check)(input.key === undefined, 'key_invalid', `${kind} records have no key.`);
+        (0, common_1.check)(input.key === undefined, 'key_invalid', `${kind} records do not take a key; omit key.`);
     if (input.keywords?.length)
         headers.keywords = input.keywords;
     if (input.tags?.length)
@@ -504,12 +504,12 @@ function recordFromInput(input, options) {
     if (kind === 'archive')
         headers.content_digest = (0, common_1.sha256)(Buffer.from(primary, 'utf8'));
     for (const [key, value] of Object.entries(input.headers ?? {})) {
-        (0, common_1.check)(!RESERVED_KEY.test(key), 'custom_header_invalid', 'Host headers use namespace.name keys.', { key });
+        (0, common_1.check)(!RESERVED_KEY.test(key), 'custom_header_invalid', 'Host headers must use namespace.name keys.', { key });
         headers[key] = value;
     }
     for (const entry of input.sources ?? []) {
         validateSource(entry);
-        (0, common_1.check)(!model_1.MANAGED_RELATIONS.has(entry.relation), 'sources_invalid', `${entry.relation} entries are written by the core.`, { relation: entry.relation });
+        (0, common_1.check)(!model_1.MANAGED_RELATIONS.has(entry.relation), 'sources_invalid', `${entry.relation} entries are managed by Whyve and cannot be supplied.`, { relation: entry.relation });
         record.sources.push({ ...entry });
     }
     record.sources.push(...authorizationSources(options.authorization));

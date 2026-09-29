@@ -16,7 +16,7 @@ codex plugin marketplace add https://github.com/swimit-io/whyve.git
 codex plugin add whyve@whyve
 ```
 
-호스트를 다시 열고 프로젝트에서 `$whyve:init`을 실행하세요. 기록할 종류와 `explicit`, `auto`, `adaptive` 중 기록 방식을 고릅니다. 새 프로젝트의 기본값은 결정과 `explicit`입니다. init은 이미 설치된 플러그인을 설정하며 다른 서비스를 설치하지 않습니다.
+Codex나 Claude Code를 다시 시작하고 프로젝트에서 `$whyve:init`(Codex) 또는 `/whyve:init`(Claude Code)을 실행하세요. 기록할 종류와 `explicit`, `auto`, `adaptive` 중 기록 방식을 고릅니다. 새 프로젝트의 기본값은 결정과 `explicit`입니다. init은 이미 설치된 플러그인을 설정하며 다른 서비스를 설치하지 않습니다.
 
 ## 세 가지 사용 예
 
@@ -34,4 +34,4 @@ codex plugin add whyve@whyve
 
 ## 문의와 라이선스
 
-설정이 안 되면 Node.js 버전을 확인하고 해당 프로젝트에서 `$whyve:init`을 다시 실행하세요. 일반 버그는 [GitHub 이슈](https://github.com/swimit-io/whyve/issues), 보안 문제는 [비공개 보안 신고](https://github.com/swimit-io/whyve/security/advisories/new)로 알려주세요. 라이선스는 [Apache-2.0](https://github.com/swimit-io/whyve/blob/main/LICENSE)입니다.
+설정이 안 되면 Node.js 버전을 확인하고 해당 프로젝트에서 init(`$whyve:init` 또는 `/whyve:init`)을 다시 실행하세요. 일반 버그는 [GitHub 이슈](https://github.com/swimit-io/whyve/issues), 보안 문제는 [비공개 보안 신고](https://github.com/swimit-io/whyve/security/advisories/new)로 알려주세요. 라이선스는 [Apache-2.0](https://github.com/swimit-io/whyve/blob/main/LICENSE)입니다.

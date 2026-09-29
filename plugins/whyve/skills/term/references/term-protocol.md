@@ -13,7 +13,8 @@ in `retired/`.
 
 ## Claim boundary
 
-Only a term with an explicit project-specific or project-special meaning. Observed
+Only a term that is explicitly specific to this project or has a special
+meaning in it. Observed
 facts belong to OBS, accepted choices to DEC, unverified premises to ASM. Generic
 dictionary definitions are not recorded.
 

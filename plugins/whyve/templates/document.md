@@ -14,4 +14,4 @@ authorization_source: "{{user|policy}}"
 
 ## Content
 
-{{current-state Markdown consumed through recall}}
+{{Markdown describing the current state}}

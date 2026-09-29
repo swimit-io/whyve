@@ -32,12 +32,12 @@ wrapper's `schema`) prints the fields and limits when unsure.
 - `auto`: record eligible durable context without per-record questions under
   the user's project policy. Never store whole transcripts. Use
   `--policy-decision record --policy-reason '<why>'`.
-- `adaptive`: judge from meaning, evidence, scope, conflicts with existing
-  records and the lifecycle consequence whether to record or ask. Verified
+- `adaptive`: decide whether to record or ask, based on meaning, evidence,
+  scope, conflicts with existing records, and lifecycle consequences. Verified
   observations and clear user choices usually need no question; ambiguous
   intent, unclear scope, unresolved contradictions or surprising lifecycle
   changes get one focused question. Pass `--policy-decision record|ask` with a
-  concise reason. This is a model judgment, not a confidence guarantee.
+  concise reason. This is the model's judgment, not a guarantee.
 
 If the user already approved the meaning, use `--approved` in every mode. A
 policy write is not a user commitment: a model preference or an unaccepted
@@ -114,7 +114,7 @@ record changed; read or compare again and re-judge. `feature_disabled`: the
 kind is not enabled. `migration_required`: the vault is still
 `context-common/v2` (readable; writing needs the explicit migration).
 `approval_required`: authorization was missing. Apply is idempotent: repeating
-`apply HANDLE` returns `already_applied`. Core alone writes, under a lock, with
+`apply HANDLE` returns `already_applied`. Only the core writes, under a lock, with
 compare-and-swap on every touched file and atomic, journaled writes.
 
 For SNAP, a user's chosen `auto` or `adaptive` mode is a standing handoff

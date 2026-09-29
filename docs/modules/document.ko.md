@@ -2,7 +2,7 @@
 
 [English](./document.md)
 
-recall로 읽는 살아 있는 현재 상태 문서이며, 정확한 scope와 key마다 `Content` section 하나(slot `exact-scope-key`)를 `title.md`로 저장한다. `update`는 같은 ID와 slot에서 내용을 교체하고, scope나 key를 옮기는 것은 supersede다. 큰 지식은 안정된 chapter slot으로 나눈다. 외부 산출물은 저장소 파일로 둔다.
+`list`와 `read`로 읽는 살아 있는 현재 상태 문서이며, 정확한 scope와 key마다 `Content` section 하나(slot `exact-scope-key`)를 `title.md`로 저장한다. `update`는 같은 ID와 slot에서 내용을 교체하고, scope나 key를 옮기는 것은 supersede다. 큰 지식은 안정된 chapter slot으로 나눈다. 외부 산출물은 저장소 파일로 둔다.
 
 Whyve 0.3.0에 포함된 내부 모듈이며 별도 플러그인이 아니다. 설치·설정은 [시작 안내](../../README.ko.md)와 단일 `$whyve:init` 진입점을 사용한다. SNAP·OBS·ARCHIVE는 기본 제공하며 나머지 kind는 프로젝트에서 선택한다.
 

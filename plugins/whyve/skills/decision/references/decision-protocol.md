@@ -5,12 +5,12 @@ Authority: `authoritative`. Directory `context/decision/`, file
 
 | part | field | rule |
 |---|---|---|
-| header | `scope`, `key` | Required, canonical (NFKC, case-folded, `-` for other runs; scope ≤ 8 segments, 160 chars; key ≤ 80, no `/`). |
+| header | `scope`, `key` | Required, canonical (NFKC, case-folded, other character runs become `-`; scope ≤ 8 segments, 160 chars; key ≤ 80, no `/`). |
 | header | `revisit_on` | Optional date to reassess. |
 | `## Decision` | `decision` | Required. The choice itself. |
 | `## Rationale` | `rationale` | Optional; empty adds `rationale_missing`. |
 | `## Rejected alternatives` | `rejected_alternatives` | Optional list; empty adds `alternatives_missing`. |
-| `## Evidence and constraints` | `constraints` | Optional list; empty adds `evidence_missing`. |
+| `## Evidence and constraints` | `constraints` | Optional list of evidence and constraints; empty adds `evidence_missing`. |
 | `## Trade-offs` | `tradeoffs` | Optional list. |
 | `## Revisit conditions` | `revisit_when` | Optional list. |
 

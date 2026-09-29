@@ -98,3 +98,19 @@ test('bodies near the 256 KiB limit are compared whole; v2 long notes and odd li
     const dry = await h.migrateFormat(vault, { vault, planDir: fs.mkdtempSync(path.join(os.tmpdir(), 'whyve-plan-')), dryRun: true });
     assert.equal(dry.status, 'planned', JSON.stringify(dry.blockers));
 });
+
+test('lock directories need POSIX owner-only modes except on Windows, where Node reports no owner bits', () => {
+    // Windows stat reports every writable directory as 0o777, so a shared-looking lock root must not block writes there.
+    const run = platform => {
+        const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'whyve-lockroot-')));
+        const lockRoot = path.join(tmp, 'context-core-locks');
+        fs.mkdirSync(lockRoot);
+        fs.chmodSync(lockRoot, 0o777);
+        const script = `Object.defineProperty(process, 'platform', { value: ${JSON.stringify(platform)} });
+const h = require(${JSON.stringify(path.join(__dirname, 'helpers.cjs'))});
+h.fixture().then(({ w }) => h.capture(w, 'observation')).then(() => console.log('ok'), e => console.log(e.code));`;
+        return require('node:child_process').execFileSync(process.execPath, ['-e', script], { env: { ...process.env, TMPDIR: tmp, TMP: tmp, TEMP: tmp }, encoding: 'utf8' }).trim();
+    };
+    assert.equal(run('win32'), 'ok');
+    assert.equal(run(process.platform), 'lock_unsafe');
+});

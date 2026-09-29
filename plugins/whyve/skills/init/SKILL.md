@@ -1,13 +1,13 @@
 ---
 name: init
-description: Set up or reconfigure the installed Whyve plugin for a project, choosing semantic features and a recording approval mode.
+description: Set up or reconfigure the installed Whyve plugin for a project, choosing which record types to enable and how recording is approved (the recording mode).
 ---
 
-Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. No Python, global install or `--help`.
+Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. Don't use Python, a global install, or `--help`.
 
 # Whyve init
 
-Init configures already-installed code; it never installs or uninstalls plugins. Select project features (`decision`, `assumption`, `term`, `intent`, `document`) and `explicit|auto|adaptive` recording. Recommend adaptive for everyday use, but never opt a project into automatic recording without the user's choice. Omitted options keep the current settings; a fresh vault defaults to `decision` and `explicit`. SNAP, OBS and ARCHIVE are built in.
+Init configures the installed plugin; it never installs or uninstalls plugins. Select project features (`decision`, `assumption`, `term`, `intent`, `document`) and `explicit|auto|adaptive` recording. Recommend adaptive for everyday use, but never opt a project into automatic recording without the user's choice. Omitted options keep the current settings; a fresh vault defaults to `decision` and `explicit`. SNAP, OBS and ARCHIVE are built in.
 
 ```bash
 node /loaded/whyve/skills/init/scripts/whyve_init.mjs --host codex

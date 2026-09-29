@@ -44,7 +44,7 @@ export function parseRow(line: string): ParsedRow {
     const close = line.indexOf(')', i + 2);
     if (close < 0) invalid('unterminated path');
     let relativePath: string;
-    try { relativePath = decodeURIComponent(line.slice(i + 2, close)); } catch { return invalid('bad percent-encoding'); }
+    try { relativePath = decodeURIComponent(line.slice(i + 2, close)); } catch { return invalid('invalid percent-encoding'); }
     if (!/^(?:retired\/)?[^/\\]+\.md$/.test(relativePath) || relativePath.split('/').some(p => p === '.' || p === '..')) invalid('path escapes its area');
     const rest = line.slice(close + 1);
     if (!rest.startsWith(' · ')) invalid('missing summary separator');
@@ -53,18 +53,18 @@ export function parseRow(line: string): ParsedRow {
     const summary = unescape(columns[0]), values = new Map<string, string>(), projections: Record<string, string[]> = {};
     for (const part of split(columns[1], '; ')) {
         const eq = part.indexOf('=');
-        if (eq <= 0) invalid('field without =');
+        if (eq <= 0) invalid('field missing "="');
         const key = part.slice(0, eq), raw = part.slice(eq + 1);
         // Projections are always lists: one index cell cannot tell a one-item list from a string.
         if (key.startsWith('header.')) { projections[key.slice(7)] = raw === '' ? [] : split(raw, ',').map(unescape); continue; }
         if (values.has(key) || !(TAIL as readonly string[]).includes(key)) invalid(`unexpected field ${key}`);
         values.set(key, key === 'keywords' ? raw : unescape(raw));
     }
-    if ([...values.keys()].join() !== TAIL.join()) invalid('fields out of order or missing');
+    if ([...values.keys()].join() !== TAIL.join()) invalid('fields missing or out of order');
     const id = values.get('id')!, kind = values.get('kind')!, state = values.get('state')!;
     requireId(id);
-    if (!isKind(kind) || !['current', 'history'].includes(state)) invalid('kind or state');
-    if ((state === 'history') !== relativePath.startsWith('retired/')) invalid('state differs from path');
+    if (!isKind(kind) || !['current', 'history'].includes(state)) invalid('invalid kind or state');
+    if ((state === 'history') !== relativePath.startsWith('retired/')) invalid('state does not match path');
     const keywordsRaw = values.get('keywords')!;
     return {
         rawLine: line,

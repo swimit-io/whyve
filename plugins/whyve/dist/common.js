@@ -130,7 +130,7 @@ const newId = () => 'ctx_' + (0, node_crypto_1.randomUUID)().replaceAll('-', '')
 exports.newId = newId;
 const newPlanId = () => 'plan_' + (0, node_crypto_1.randomUUID)().replaceAll('-', '');
 exports.newPlanId = newPlanId;
-function requireId(value, field = 'id') { check(typeof value === 'string' && /^ctx_[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$/.test(value), 'id_invalid', `${field} must be ctx_ plus lowercase UUIDv4 hex.`, { field }); }
+function requireId(value, field = 'id') { check(typeof value === 'string' && /^ctx_[0-9a-f]{12}4[0-9a-f]{3}[89ab][0-9a-f]{15}$/.test(value), 'id_invalid', `${field} must be "ctx_" followed by a lowercase UUIDv4 in hex.`, { field }); }
 function strictJson(text, code = 'schema_invalid') {
     // A small JSON reader retains duplicate-key detection lost by JSON.parse's reviver.
     let p = 0;
@@ -245,7 +245,7 @@ function filename(value) {
     check(stem && !['.', '..'].includes(stem) && !/[\/\\<>:"|?*\[\]#^\x00-\x1f\x7f]/.test(basename), 'filename_invalid', 'Filename contains a forbidden character.');
     check(!folded.endsWith('.index.md') && !folded.includes('<!--') && !folded.includes('-->'), 'reserved_path', 'Artifact filename is reserved.', {}, exports.EXIT.conflict);
     check(!/^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test((0, exports.normalizedKey)(stem)), 'filename_invalid', 'Filename is reserved by supported filesystems.');
-    check((0, exports.codepoints)(basename) <= 120 && Buffer.byteLength(basename) <= 240, 'filename_required', 'Filename exceeds the v1 limit.');
+    check((0, exports.codepoints)(basename) <= 120 && Buffer.byteLength(basename) <= 240, 'filename_required', 'Filename is too long (maximum 120 characters and 240 bytes).');
     return basename;
 }
 function naturalFilename(title) { const stem = (0, exports.nfc)(title.trim()).replace(unicode_1.nonFilename, '-').replace(/^[-._]+|[-._]+$/g, ''); check(stem, 'filename_required', 'Title cannot produce a safe filename.'); return filename(stem + '.md'); }

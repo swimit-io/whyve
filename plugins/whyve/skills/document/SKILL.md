@@ -1,9 +1,9 @@
 ---
 name: document
-description: When a living project document needs durable capture or content replacement, record it as a DOCUMENT in a stable scope and key slot.
+description: Save or replace a living project document (for example, a checklist or design notes) under a stable scope and key.
 ---
 
-Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. No Python, global install, `--help` or reading plugin scripts.
+Runtime: Node.js 20.20.0+. Run the `.mjs` entrypoints of this package; resolve `/loaded/whyve/skills/...` from this file's own path. Don't use Python, a global install, or `--help`, and don't read plugin scripts.
 
 # Document
 
@@ -11,8 +11,8 @@ DOCUMENT (`authority: authoritative`) is current-state text that agents or peopl
 
 - Record substantive current-state `content` (Markdown). Decline external deliverables (they stay repository files), evidence, premises, desired direction and chosen commitments; route those to their kinds.
 - One Current DOCUMENT per exact scope and key; a capture into an occupied slot returns `needs_review`. Change content with `update` (replaces `content`, keeps ID, path, slot and state). Moving scope or key is a `supersede`.
-- Treat each slot as one read budget. Split a large design into stable chapter slots such as `design-skeleton`, `design-envelope`, `design-rules` instead of enlarging one slot. The body limit is 256 KiB.
-- File name is `title.md`. Add no taxonomy, subtypes or inverse links. A DEC may point here with an `affects:document` source; review the newer DEC and update Content only when the current state really changed.
+- Keep each slot small enough to read in one pass. Split a large design into stable chapter slots such as `design-skeleton`, `design-envelope`, `design-rules` instead of enlarging one slot. The body limit is 256 KiB.
+- File name is `title.md`. Don't add taxonomies, subtypes, or inverse links. A DEC may point here with an `affects:document` source; review the newer DEC and update Content only when the current state has actually changed.
 
 A direct, explicit, unconditional user statement that settles the content, scope and lifecycle effect is approval; ask only about unresolved meaning, never a second storage question.
 
