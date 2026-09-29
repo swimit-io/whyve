@@ -14,5 +14,6 @@
     "project context",
     "decisions",
     "coding agents"
-  ]
+  ],
+  "privacyPolicyUrl": "https://github.com/swimit-io/whyve/blob/main/plugins/whyve/PRIVACY.md"
 }
