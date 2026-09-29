@@ -3,25 +3,35 @@
   "version": "0.3.0",
   "description": "Keep the thread: durable project context with project-selected features and recording policies.",
   "author": {
-    "name": "Jinwuk-Lee",
+    "name": "Jinwuk Lee",
+    "email": "jeis.jw@gmail.com",
     "url": "https://github.com/Jeis-Jw"
   },
+  "homepage": "https://whyve.vercel.app/",
+  "repository": "https://github.com/swimit-io/whyve",
+  "license": "Apache-2.0",
+  "keywords": ["project context", "decisions", "coding agents"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Whyve",
-    "shortDescription": "Keep the thread across AI coding sessions.",
-    "longDescription": "One plugin for decisions, evidence, handoffs, assumptions, terminology, intent and living documents. Select features and explicit, automatic or adaptive recording per project. Plain Markdown; no service required.",
-    "developerName": "Jinwuk-Lee",
+    "shortDescription": "Keep project decisions and why",
+    "longDescription": "Keep project decisions and their reasons across AI coding sessions. Whyve stores decisions, observations, assumptions, intent, terms and documents as Markdown files in your project's context folder. Set up each project with $whyve:init, choose which features to use and select explicit, automatic or adaptive recording. Recall a past rationale or compare a proposed change with the current decision. Requires Node.js 20.20.0 or newer. No Whyve account or remote service is required; your AI host processes context that the agent reads.",
+    "developerName": "Jinwuk Lee",
     "category": "Productivity",
     "capabilities": [
-      "Read",
-      "Write",
-      "Validation"
+      "Record decisions with their reasons",
+      "Recall project context across sessions",
+      "Compare proposed changes with current decisions"
     ],
+    "websiteURL": "https://whyve.vercel.app/",
+    "supportURL": "https://github.com/swimit-io/whyve/issues",
+    "privacyPolicyURL": "https://github.com/swimit-io/whyve/blob/main/plugins/whyve/PRIVACY.md",
+    "logo": "./assets/icon.png",
+    "composerIcon": "./assets/icon.png",
     "defaultPrompt": [
-      "Set up Whyve for this project.",
-      "Check the decisions relevant to this change.",
-      "Save the context needed to continue this work."
+      "Set up Whyve for this project and explain the recording choices.",
+      "Why did we make the current decision about this feature?",
+      "Compare this proposal with the current decision and its reason before changing anything."
     ]
   }
 }

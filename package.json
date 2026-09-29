@@ -23,6 +23,8 @@
     "plugins/whyve/templates",
     "plugins/whyve/.claude-plugin",
     "plugins/whyve/.codex-plugin",
+    "plugins/whyve/PRIVACY.md",
+    "plugins/whyve/PRIVACY.ko.md",
     "README.md",
     "README.ko.md",
     "SECURITY.md",
