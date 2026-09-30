@@ -18,7 +18,7 @@
     {
       "name": "whyve",
       "version": "0.3.0",
-      "description": "Keep project decisions, their reasons, and other project context across AI coding sessions, stored as Markdown files in your project.",
+      "description": "Keep project decisions, their reasons, and other project context across AI agent sessions, stored as Markdown files in your project.",
       "source": {
         "source": "local",
         "path": "./plugins/whyve"

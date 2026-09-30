@@ -8,7 +8,7 @@
 <p align="center"><strong>Keep the thread.</strong> 작업의 맥락을 이어갑니다.</p>
 
 <p align="center">
-AI 코딩 에이전트를 위한 오래가는 프로젝트 컨텍스트. 결정과 그 이유를 세션이 바뀌어도 이어 줍니다.
+AI 에이전트를 위한 오래가는 프로젝트 컨텍스트. 결정과 그 이유를 세션이 바뀌어도 이어 줍니다.
 </p>
 
 <p align="center">

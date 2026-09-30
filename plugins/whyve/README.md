@@ -1,6 +1,6 @@
 # Whyve
 
-Keep the reasons behind project decisions across AI coding sessions. Whyve records decisions, observations, assumptions, intents, terms, and documents as readable Markdown. It can recall an earlier rationale and compare a new proposal with the current decision before anything is replaced.
+Keep the reasons behind project decisions across AI agent sessions. Whyve records decisions, observations, assumptions, intents, terms, and documents as readable Markdown. It can recall an earlier rationale and compare a new proposal with the current decision before anything is replaced.
 
 ## Install and start
 

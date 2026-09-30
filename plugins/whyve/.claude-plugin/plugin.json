@@ -1,7 +1,7 @@
 {
   "name": "whyve",
   "version": "0.3.0",
-  "description": "Keep project decisions, their reasons, and other project context across AI coding sessions, stored as Markdown files in your project.",
+  "description": "Keep project decisions, their reasons, and other project context across AI agent sessions, stored as Markdown files in your project.",
   "author": {
     "name": "Jinwuk Lee",
     "email": "jeis.jw@gmail.com",
@@ -13,6 +13,8 @@
   "keywords": [
     "project context",
     "decisions",
-    "coding agents"
-  ]
+    "coding agents",
+    "AI agents"
+  ],
+  "privacyPolicyUrl": "https://github.com/swimit-io/whyve/blob/main/plugins/whyve/PRIVACY.md"
 }

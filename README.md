@@ -7,7 +7,7 @@
 <p align="center"><sub><em>The name:</em> Whyve is <em>why</em> + <em>weave</em>. It weaves the reasons behind your choices into a thread that carries across sessions.</sub></p>
 
 <p align="center">
-Durable project context for AI coding agents: decisions and their reasons, kept across sessions.
+Durable project context for AI agents: decisions and their reasons, kept across sessions.
 </p>
 
 <p align="center">

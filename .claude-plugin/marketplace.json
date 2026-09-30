@@ -6,22 +6,13 @@
     "url": "https://github.com/Jeis-Jw"
   },
   "metadata": {
-    "description": "Keep project decisions, their reasons, and other project context across AI coding sessions, stored as Markdown files in your project.",
-    "release_set": {
-      "schema": "context-plugin-release-set/v1",
-      "version": "0.3.0",
-      "runtime_compatibility": "single-package",
-      "automatic_update": false,
-      "members": {
-        "whyve": "0.3.0"
-      }
-    }
+    "description": "Keep project decisions, their reasons, and other project context across AI agent sessions, stored as Markdown files in your project."
   },
   "plugins": [
     {
       "name": "whyve",
       "version": "0.3.0",
-      "description": "Keep project decisions, their reasons, and other project context across AI coding sessions, stored as Markdown files in your project.",
+      "description": "Keep project decisions, their reasons, and other project context across AI agent sessions, stored as Markdown files in your project.",
       "source": "./plugins/whyve"
     }
   ]

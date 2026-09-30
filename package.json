@@ -1,7 +1,7 @@
 {
   "name": "@whyve/context",
   "version": "0.3.0",
-  "description": "Whyve core library and CLI: durable, file-based project context for AI coding agents.",
+  "description": "Whyve core library and CLI: durable, file-based project context for AI agents.",
   "type": "commonjs",
   "main": "./plugins/whyve/dist/index.js",
   "types": "./plugins/whyve/dist/index.d.ts",
